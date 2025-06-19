@@ -1,0 +1,63 @@
+orders:
+  - id: 1
+    oao: sky
+    obo: sky
+    wag_order_id: 1
+    order_number: BT-QBTCDC-12346
+    data_contract_name: WAG
+    originator_code: EXT
+    transaction_id: 10101
+    operator_name: SKY
+    operator_code: 83758
+    service_class: WIC
+    service: QBTDC
+    status: talos complete
+    project_key: xyz
+    last_changed: 2022-01-08 15:15:14
+    created: 2021-01-08 19:15:14
+    date_time_stamp: 2021-01-08 15:15:14
+    version: 1
+
+qbtdc:
+  - order_id: 1
+    recurring_frequency: ANNUAL
+    sync_flag: N
+
+qbtdc_quote:
+  - quote_item_id: 1
+    wag_quote_item_id: 2
+    term: 5
+    status: Quoted
+    order_id: 1
+    logical_link_id: 1
+    customer_access_id: 1
+    wholesaler_access_id: 2
+    last_changed: 2022-01-08 15:15:14
+    created: 2021-01-08 19:15:14
+
+access:
+  - id: 1
+    action: 0
+    bandwidth: 10
+    sla: ENHANCED
+    location_id: A00F027
+    location_type: EIRCODE
+    supplier: ON-NET
+    last_changed: 2022-01-08 15:15:14
+    created: 2021-01-08 19:15:14
+  - id: 2
+    action: 1
+    location_id: INTERNET
+    location_type: HANDOVER
+    last_changed: 2022-01-08 15:15:14
+    created: 2021-01-08 19:15:14
+
+logical_link:
+  - id: 1
+    action: 0
+    profile: PRIMARY
+    bandwidth: 6000
+    ip_range: 31
+    last_changed: 2022-01-08 15:15:14
+    created: 2021-01-08 19:15:14
+

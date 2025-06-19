@@ -1,0 +1,1 @@
+ALTER TABLE `access` modify column term_equipment_presentation varchar(10);

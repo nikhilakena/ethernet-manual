@@ -1,0 +1,209 @@
+{
+  "task": {
+    "quoteItemId": 10,
+    "taskId": "{taskId}",
+    "assignee": null,
+    "eircode": "A00F027",
+    "product": "WIC",
+    "connectionType": "Etherway Standard",
+    "term": "3(years)",
+    "ipRange": "31",
+    "aendAction": "New Access",
+    "aendBandwidth": "10GB",
+    "aendSla": "Standard",
+    "delivery": "3rd Party Supplier",
+    "handoff": "Internet",
+    "logicalBandwidth": "10000MB",
+    "profile": "Primary (0% AF)",
+    "rejectReason": "Eircode is invalid",
+    "group": null
+  },
+  "oao": "sky",
+  "orderNumber": "BT-QBTDC-1",
+  "recurringFrequency": "Monthly",
+  "_links": {
+    "self": {
+      "href": "http://localhost:{port}/api/v1/qbtdc/task/{taskId}"
+    }
+  },
+  "_templates": {
+    "acceptQuote": {
+      "title": "Accept Quote",
+      "method": "PUT",
+      "properties": [
+        {
+          "name": "deliveryType",
+          "prompt": "Delivery Type",
+          "readOnly": true,
+          "required": true,
+          "type": "dropdown",
+          "options": {
+            "inline": [
+              {
+                "prompt": "BT On-Net",
+                "value": "ON-NET"
+              },
+              {
+                "prompt": "3rd Party Supplier",
+                "value": "OFF-NET"
+              }
+            ]
+          }
+        },
+        {
+          "name": "etherflowRecurringCharge",
+          "prompt": "Etherflow Recurring Charge",
+          "readOnly": true,
+          "required": true,
+          "minLength": 1,
+          "maxLength": 32,
+          "type": "text"
+        },
+        {
+          "name": "etherwayRecurringCharge",
+          "prompt": "Etherway Recurring Charge",
+          "readOnly": true,
+          "required": true,
+          "minLength": 1,
+          "maxLength": 32,
+          "type": "text"
+        },
+        {
+          "name": "nonRecurringCharge",
+          "prompt": "Non Recurring Charge",
+          "readOnly": true,
+          "required": true,
+          "minLength": 1,
+          "maxLength": 32,
+          "type": "text"
+        },
+        {
+          "name": "recurringCharge",
+          "prompt": "Recurring Charge",
+          "readOnly": true,
+          "required": true,
+          "minLength": 1,
+          "maxLength": 32,
+          "type": "text"
+        },
+        {
+          "name": "taskQuoteAcceptNotes",
+          "prompt": "Notes",
+          "readOnly": true,
+          "minLength": 0,
+          "maxLength": 500,
+          "type": "textarea"
+        }
+      ],
+      "target": "http://localhost:{port}/api/v1/qbtdc/offlinepricing/task/{taskId}/accept"
+    },
+    "default": {
+      "title": "default",
+      "method": "PUT",
+      "properties": [
+        {
+          "name": "quoteAction",
+          "prompt": "Quote Action",
+          "readOnly": true,
+          "type": "dynamicRadio",
+          "options": {
+            "inline": [
+              {
+                "prompt": "Accept Quote",
+                "value": "acceptQuote"
+              },
+              {
+                "prompt": "Reject Quote",
+                "value": "rejectQuote"
+              },
+              {
+                "prompt": "No Bid Quote",
+                "value": "noBidQuote"
+              }
+            ]
+          }
+        }
+      ],
+      "target": "http://localhost:{port}/api/v1/qbtdc/offlinepricing/task/actions"
+    },
+    "noBidQuote": {
+      "title": "No Bid Quote",
+      "method": "PUT",
+      "properties": [
+        {
+          "name": "notes",
+          "prompt": "Notes",
+          "readOnly": true,
+          "required": true,
+          "minLength": 1,
+          "maxLength": 500,
+          "type": "textarea"
+        }
+      ],
+      "target": "http://localhost:{port}/api/v1/qbtdc/offlinepricing/task/{taskId}/nobid"
+    },
+    "rejectQuote": {
+      "title": "Reject Quote",
+      "method": "PUT",
+      "properties": [
+        {
+          "name": "notes",
+          "prompt": "Notes",
+          "readOnly": true,
+          "required": true,
+          "minLength": 1,
+          "maxLength": 500,
+          "type": "textarea"
+        },
+        {
+          "name": "rejectCode",
+          "prompt": "Rejection Reason",
+          "readOnly": true,
+          "required": true,
+          "type": "dropdown",
+          "options": {
+            "inline": [
+              {
+                "prompt": "Access bandwidth not available off net site (1gig vs 10Gig)",
+                "value": "access_bw_exch_capacity"
+              },
+              {
+                "prompt": "Cannot Quote Non-Commercial Eircode",
+                "value": "eircode_not_available"
+              },
+              {
+                "prompt": "Eircode Unknown",
+                "value": "eircode_not_found"
+              },
+              {
+                "prompt": "Exchange capacity not available (COS)",
+                "value": "af_ef_not_available"
+              },
+              {
+                "prompt": "Exchange Not active",
+                "value": "location_not_available"
+              },
+              {
+                "prompt": "Miscellaneous",
+                "value": "miscellaneous"
+              },
+              {
+                "prompt": "Requested access supplier is invalid",
+                "value": "access_supplier_invalid"
+              },
+              {
+                "prompt": "Requested access supplier not available",
+                "value": "access_supplier_not_available"
+              },
+              {
+                "prompt": "Line Diverse/Diverse Plus is not available",
+                "value": "diverse_line_not_available"
+              }
+            ]
+          }
+        }
+      ],
+      "target": "http://localhost:{port}/api/v1/qbtdc/offlinepricing/task/{taskId}/reject"
+    }
+  }
+}

@@ -1,0 +1,82 @@
+package com.btireland.talos.ethernet.engine.util;
+
+import com.btireland.talos.ethernet.engine.dto.*;
+import com.btireland.talos.ethernet.engine.enums.ActionFlag;
+
+import java.time.LocalDateTime;
+import java.util.Arrays;
+
+public class PbtdcDTOFactory {
+
+    public static PbtdcDTO defaultPbtdcDTO() {
+        return PbtdcDTO.builder()
+                .logicalLink(LogicalLinkDTO.builder()
+                        .circuitReference("Test Reference")
+                        .serviceClass("BT_ETHERFLOW/VOICE")
+                        .action(ActionFlag.P)
+                        .serviceDetails(Arrays.asList(ServiceDetailsDTO.builder()
+                                        .serviceName("CPE_WAN_IP")
+                                        .serviceValue("89.188.167.55/31")
+                                        .action(ActionFlag.P).build(),
+                                ServiceDetailsDTO.builder()
+                                        .serviceName("GATEWAY_IP")
+                                        .serviceValue("89.188.167.90/31")
+                                        .action(ActionFlag.P)
+                                        .build()))
+                        .circuitType("BT_ETHERFLOW")
+                        .bandWidth("5000")
+                        .vlan("Sample Vlan")
+                        .build())
+                .customerAccess(AccessDTO.builder()
+                        .changedAt(LocalDateTime.parse("2020-11-11T09:44:10.777317"))
+                        .circuitReference("Test AEnd Reference")
+                        .serviceClass("BT_ETHERWAY")
+                        .action(ActionFlag.CH)
+                        .site(SiteDTO.builder()
+                                .location(LocationDTO.builder()
+                                        .id("A4000032")
+                                        .address(AddressDTO.builder()
+                                                .locationLine1("Line 1")
+                                                .locationLine2("Line 2")
+                                                .locationLine3("Line 3")
+                                                .city("City 1")
+                                                .county("County 1")
+                                                .build())
+                                        .build())
+                                .build())
+                        .circuitType("BT_ETHERWAY")
+                        .terminatingEquipment(TerminatingEquipmentDTO.builder()
+                                .port("500")
+                                .presentation("AEnd")
+                                .portSetting("AEnd Config")
+                                .portSpeed("100")
+                                .build())
+                        .build())
+                .wholesalerAccess(AccessDTO.builder()
+                        .changedAt(LocalDateTime.parse("2020-11-12T09:44:10.777317"))
+                        .circuitReference("Test BEnd Reference")
+                        .serviceClass("BT_ETHERWAY")
+                        .action(ActionFlag.CH)
+                        .site(SiteDTO.builder()
+                                .location(LocationDTO.builder()
+                                        .id("A4000032")
+                                        .address(AddressDTO.builder()
+                                                .locationLine1("Line 1")
+                                                .locationLine2("Line 2")
+                                                .locationLine3("Line 3")
+                                                .city("City 2")
+                                                .county("County 2")
+                                                .build())
+                                        .build())
+                                .build())
+                        .circuitType("BT_ETHERWAY")
+                        .terminatingEquipment(TerminatingEquipmentDTO.builder()
+                                .port("600")
+                                .presentation("BEnd")
+                                .portSetting("BEnd Config")
+                                .portSpeed("200")
+                                .build())
+                        .build())
+                .build();
+    }
+}

@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_0gl9pb4" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.4.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.15.0">
+  <bpmn:collaboration id="Collaboration_15w9fyu">
+    <bpmn:participant id="CreateQuoteOfflinePricingOrder" name="Create Quote Offline Pricing" processRef="CreateQuoteOfflinePricingOrderProcess" />
+  </bpmn:collaboration>
+  <bpmn:process id="CreateQuoteOfflinePricingOrderProcess" name="QuoteOfflinePricing" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_OfflineQuoteProcess" name="Offline Quote reuest received">
+      <bpmn:outgoing>Flow_0k1owos</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:subProcess id="Activity_GenerateQuoteOfflineProcess" name="Generate Offline Quote">
+      <bpmn:incoming>Flow_0k1owos</bpmn:incoming>
+      <bpmn:outgoing>Flow_0lbwhfy</bpmn:outgoing>
+      <bpmn:multiInstanceLoopCharacteristics camunda:collection="quoteIdList" camunda:elementVariable="quoteId" />
+      <bpmn:startEvent id="StartEvent_OfflineQuote">
+        <bpmn:outgoing>Flow_010fo87</bpmn:outgoing>
+      </bpmn:startEvent>
+      <bpmn:userTask id="Activity_QuoteOffinePricingUserTask" name="Offline Pricing User Task" camunda:asyncBefore="true">
+        <bpmn:incoming>Flow_010fo87</bpmn:incoming>
+        <bpmn:outgoing>Flow_0g1fll7</bpmn:outgoing>
+      </bpmn:userTask>
+      <bpmn:endEvent id="EndEvent_OfflineQuote" name="Quote processed">
+        <bpmn:incoming>Flow_0g1fll7</bpmn:incoming>
+      </bpmn:endEvent>
+      <bpmn:sequenceFlow id="Flow_010fo87" sourceRef="StartEvent_OfflineQuote" targetRef="Activity_QuoteOffinePricingUserTask" />
+      <bpmn:sequenceFlow id="Flow_0g1fll7" sourceRef="Activity_QuoteOffinePricingUserTask" targetRef="EndEvent_OfflineQuote" />
+    </bpmn:subProcess>
+    <bpmn:sequenceFlow id="Flow_0k1owos" sourceRef="StartEvent_OfflineQuoteProcess" targetRef="Activity_GenerateQuoteOfflineProcess" />
+    <bpmn:sequenceFlow id="Flow_0lbwhfy" sourceRef="Activity_GenerateQuoteOfflineProcess" targetRef="Activity_SendQuoteCompleteNotification" />
+    <bpmn:sequenceFlow id="Flow_1aah6dm" sourceRef="Activity_SendQuoteCompleteNotification" targetRef="Activity_SendQuoteCompleteEmail" />
+    <bpmn:sendTask id="Activity_SendQuoteCompleteNotification" name="Send Quote Complete Notification" camunda:asyncBefore="true" camunda:delegateExpression="${sendQuoteCompleteNotificationServiceTask}">
+      <bpmn:incoming>Flow_0lbwhfy</bpmn:incoming>
+      <bpmn:outgoing>Flow_1aah6dm</bpmn:outgoing>
+    </bpmn:sendTask>
+    <bpmn:subProcess id="Activity_QuoteDelayedCompletion" name="Delayed notification process" triggeredByEvent="true">
+      <bpmn:startEvent id="StartEvent_QuoteDelayedCompletion" name="Delayed received" isInterrupting="false">
+        <bpmn:outgoing>Flow_0j4zpfw</bpmn:outgoing>
+        <bpmn:messageEventDefinition id="MessageEventDefinition_07jkjws" messageRef="Message_1r3b9hb" />
+      </bpmn:startEvent>
+      <bpmn:sendTask id="Activity_SendQuoteDelayedCompletion" name="Send Delayed notification" camunda:asyncBefore="true" camunda:delegateExpression="${sendQuoteDelayedCompletionNotificationServiceTask}">
+        <bpmn:incoming>Flow_0j4zpfw</bpmn:incoming>
+        <bpmn:outgoing>Flow_0v8mjyt</bpmn:outgoing>
+      </bpmn:sendTask>
+      <bpmn:endEvent id="EndEvent_QuoteDelayedCompletion" name="Delayed processed">
+        <bpmn:incoming>Flow_1dc2sxp</bpmn:incoming>
+      </bpmn:endEvent>
+      <bpmn:sequenceFlow id="Flow_0v8mjyt" sourceRef="Activity_SendQuoteDelayedCompletion" targetRef="Activity_SendQuoteDelayedEmail" />
+      <bpmn:sequenceFlow id="Flow_0j4zpfw" sourceRef="StartEvent_QuoteDelayedCompletion" targetRef="Activity_SendQuoteDelayedCompletion" />
+      <bpmn:sequenceFlow id="Flow_1dc2sxp" sourceRef="Activity_SendQuoteDelayedEmail" targetRef="EndEvent_QuoteDelayedCompletion" />
+      <bpmn:sendTask id="Activity_SendQuoteDelayedEmail" name="Send Quote Delayed Email" camunda:delegateExpression="${sendQuoteDelayedEmailServiceTask}">
+        <bpmn:incoming>Flow_0v8mjyt</bpmn:incoming>
+        <bpmn:outgoing>Flow_1dc2sxp</bpmn:outgoing>
+      </bpmn:sendTask>
+    </bpmn:subProcess>
+    <bpmn:sequenceFlow id="Flow_0j109qn" sourceRef="Activity_SendQuoteCompleteEmail" targetRef="EndEvent_OfflineQuoteProcess" />
+    <bpmn:endEvent id="EndEvent_OfflineQuoteProcess" name="Offline quote complete">
+      <bpmn:incoming>Flow_0j109qn</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sendTask id="Activity_SendQuoteCompleteEmail" name="Send Quote Complete Email" camunda:asyncBefore="true" camunda:delegateExpression="${sendQuoteCompleteEmailServiceTask}">
+      <bpmn:incoming>Flow_1aah6dm</bpmn:incoming>
+      <bpmn:outgoing>Flow_0j109qn</bpmn:outgoing>
+    </bpmn:sendTask>
+  </bpmn:process>
+  <bpmn:message id="Message_1r3b9hb" name="Msg_SupplierDelayed" />
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_15w9fyu">
+      <bpmndi:BPMNShape id="Participant_11r6xum_di" bpmnElement="CreateQuoteOfflinePricingOrder" isHorizontal="true">
+        <dc:Bounds x="129" y="79" width="1561" height="481" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_0j109qn_di" bpmnElement="Flow_0j109qn">
+        <di:waypoint x="1440" y="205" />
+        <di:waypoint x="1542" y="205" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1aah6dm_di" bpmnElement="Flow_1aah6dm">
+        <di:waypoint x="1240" y="205" />
+        <di:waypoint x="1340" y="205" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0lbwhfy_di" bpmnElement="Flow_0lbwhfy">
+        <di:waypoint x="1040" y="205" />
+        <di:waypoint x="1140" y="205" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0k1owos_di" bpmnElement="Flow_0k1owos">
+        <di:waypoint x="215" y="200" />
+        <di:waypoint x="450" y="200" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_OfflineQuoteProcess">
+        <dc:Bounds x="179" y="182" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="162" y="225" width="76" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_19sd50f_di" bpmnElement="Activity_GenerateQuoteOfflineProcess" isExpanded="true">
+        <dc:Bounds x="450" y="120" width="590" height="170" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_0g1fll7_di" bpmnElement="Flow_0g1fll7">
+        <di:waypoint x="770" y="200" />
+        <di:waypoint x="942" y="200" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_010fo87_di" bpmnElement="Flow_010fo87">
+        <di:waypoint x="548" y="200" />
+        <di:waypoint x="670" y="200" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Event_0vhckgx_di" bpmnElement="StartEvent_OfflineQuote">
+        <dc:Bounds x="512" y="182" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0zquqtu_di" bpmnElement="Activity_QuoteOffinePricingUserTask">
+        <dc:Bounds x="670" y="160" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1h5etfz_di" bpmnElement="EndEvent_OfflineQuote">
+        <dc:Bounds x="942" y="182" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="918" y="225" width="84" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0o0d70d_di" bpmnElement="Activity_SendQuoteCompleteNotification">
+        <dc:Bounds x="1140" y="165" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0pd5rga_di" bpmnElement="Activity_QuoteDelayedCompletion" isExpanded="true">
+        <dc:Bounds x="540" y="320" width="540" height="200" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1dc2sxp_di" bpmnElement="Flow_1dc2sxp">
+        <di:waypoint x="930" y="420" />
+        <di:waypoint x="992" y="420" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0j4zpfw_di" bpmnElement="Flow_0j4zpfw">
+        <di:waypoint x="616" y="420" />
+        <di:waypoint x="670" y="420" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0v8mjyt_di" bpmnElement="Flow_0v8mjyt">
+        <di:waypoint x="770" y="420" />
+        <di:waypoint x="830" y="420" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Event_1d94kad_di" bpmnElement="StartEvent_QuoteDelayedCompletion">
+        <dc:Bounds x="580" y="402" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="556" y="445" width="85" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_06t04tb_di" bpmnElement="Activity_SendQuoteDelayedCompletion">
+        <dc:Bounds x="670" y="380" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1umcgk7_di" bpmnElement="EndEvent_QuoteDelayedCompletion">
+        <dc:Bounds x="992" y="402" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="988" y="445" width="51" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0fs5fzb_di" bpmnElement="Activity_SendQuoteDelayedEmail">
+        <dc:Bounds x="830" y="380" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1pv9iav_di" bpmnElement="EndEvent_OfflineQuoteProcess">
+        <dc:Bounds x="1542" y="187" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1529" y="230" width="63" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_07ug5zn_di" bpmnElement="Activity_SendQuoteCompleteEmail">
+        <dc:Bounds x="1340" y="165" width="100" height="80" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

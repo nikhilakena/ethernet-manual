@@ -1,0 +1,1 @@
+ALTER TABLE `orders` MODIFY COLUMN supplier_order_number varchar(50) DEFAULT NULL;

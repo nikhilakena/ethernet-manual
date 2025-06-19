@@ -1,0 +1,18 @@
+qbtdc_order_map:
+  - quote_group_id: "regex:\\d+"
+    operator_code: 83758
+    operator_name: SKY
+    sync_flag: 1
+    status: REJECT
+    supplier: sky
+
+qbtdc_item_map:
+  - quote_group_id: "regex:\\d+"
+    wag_quote_id: 10
+    quote_id: "regex:\\d+"
+
+quote_email:
+  - quote_group_id: "regex:\\d+"
+    email: test1@bt.com
+  - quote_group_id: "regex:\\d+"
+    email: test2@bt.com

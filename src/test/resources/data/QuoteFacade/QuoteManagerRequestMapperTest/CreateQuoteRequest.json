@@ -1,0 +1,68 @@
+{
+  "quoteGroupId": 1,
+  "quoteDate": "2022-05-25T05:17:28",
+  "quotes": [
+    {
+      "projectIdentifier": "xyz",
+      "syncRequired": "false",
+      "resellerTransactionId": "10101",
+      "serviceClass": "WIC",
+      "connectionType": "ETHERWAY_STANDARD",
+      "relatedParties": [
+        {
+          "name": "sky",
+          "role": "BUYER"
+        },
+        {
+          "name": "sky",
+          "role": "REQUESTOR"
+        }
+      ],
+      "quotePrice": {
+        "recurringChargePeriod": "ANNUAL"
+      },
+      "quoteItems": [
+        {
+          "name": "A_END",
+          "quoteItemTerm": 5,
+          "quoteProduct": {
+            "quoteProductPlace": {
+              "eircode": "A00F027"
+            },
+            "quoteProductConfig": {
+              "bandwidth": "10",
+              "action": "PROVIDE",
+              "accessSupplier": "ON_NET",
+              "sla": "ENHANCED"
+            }
+          }
+        },
+        {
+          "name": "B_END",
+          "quoteItemTerm": 5,
+          "quoteProduct": {
+            "quoteProductPlace": {
+              "handoverNode": "INTERNET"
+            },
+            "quoteProductConfig": {
+              "action": "MODIFY"
+            }
+          }
+        },
+        {
+          "name": "LOGICAL",
+          "quoteItemTerm": 5,
+          "quoteProduct": {
+            "quoteProductPlace": null,
+            "quoteProductConfig": {
+              "bandwidth": "6000",
+              "ipRange": "31",
+              "profile": "PRIMARY",
+              "action": "PROVIDE"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

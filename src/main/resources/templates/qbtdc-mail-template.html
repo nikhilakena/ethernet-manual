@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <style>
+		body,
+
+		.Heading {
+		    color:#6600cc;
+		    font-weight:bold;
+		    font-family: Arial;
+		    font-size:16px;
+		    padding-left: 5px;
+		    padding-top: 15px;
+		    padding-bottom: 15px;
+		}
+
+        .p1 {
+		    font: 13px sans-serif;
+			line-height: 14px;
+			font-weight: 100;
+			color: black;
+	    }
+
+		p {
+		    font: 14px Arial, Helvetica, sans-serif;
+			line-height: 14px;
+			color: black;
+	    }
+
+		table {
+			border-collapse: separate;
+			border-spacing: 2px;
+			border-style: none;
+			mso-line-height-rule: exactly;
+			text-indent: initial;
+			padding-top: 10px;
+			font: 14px Arial, Helvetica, sans-serif;
+			line-height: 14px;
+		}
+
+		table td {
+			padding: 10px;
+		}
+
+		table#CircuitsTable {
+			width: 100%;
+		}
+
+		table#OrderTable tr td {
+		    min-width:200px;
+		}
+
+		.TableHeader {
+			background: #5514B4;
+			padding: 2px;
+			color: #FFF;
+			font-weight: bold;
+		}
+
+		.TableSubHeader {
+			background-color: #888;
+			color: #FFF;
+			padding: 2px;
+			font-weight: bold;
+		}
+
+		.TableElement {
+		    background: #e3dfde;
+		    color: black;
+		    font-weight: normal;
+		    font-family: Arial;
+		    padding: 6px;
+		    border: 1px solid #ccc;
+		    text-align: left;
+		}
+	</style>
+
+</head>
+<body>
+<div class="Heading">Order Details</div>
+<table id="OrderTable">
+    <tr><td class="TableHeader">Customer</td><td class="TableElement" th:text="${customer}"></td></tr>
+    <tr><td class="TableHeader">BT Reference</td><td class="TableElement" th:text="${btReference}"></td></tr>
+    <tr><td class="TableHeader">Quote Initiated Date</td><td class="TableElement" th:text="${quoteInitiatedDate}"></td></tr>
+    <tr th:if="${quoteDate}"><td class="TableHeader">Quote Date</td><td class="TableElement" th:text="${quoteDate}"></td></tr>
+</table>
+
+<div th:if="${status == 'Delayed'}">
+    <p>Please be advised your quote is delayed because of the below reason.</p>
+    <p>Please contact the wholesalepricing@bt.com for further support</p>
+</div>
+
+<p th:if="${status == 'Complete'}">Please see below for your requested quotation.</p>
+<p th:if="${narrative != null}" th:text="${narrative}"></p>
+<p>Kind Regards,</p>
+<p>BT Ireland Wholesale Pricing Team</p>
+
+
+<div class="Heading">Circuit Details</div>
+<table id="CircuitsTable">
+    <tr class="TableHeader">
+        <td rowspan="2" >Quote ID</td>
+        <td rowspan="2" th:if="${connectionType != 'ETHERWAY_STANDARD'}">Group</td>
+        <td rowspan="2">Status</td>
+        <td rowspan="2">Product</td>
+        <td rowspan="2">Connection Type</td>
+        <td colspan="3">A-End (End Customer)</td>
+        <td>B-End (PoP)</td>
+        <td>Logical</td>
+        <td colspan="2">Price</td>
+    </tr>
+    <tr class="TableSubHeader">
+        <td>Eircode</td>
+        <td>Access</td>
+        <td>Delivery</td>
+        <td>Handoff</td>
+        <td>Access</td>
+        <td>NRC</td>
+        <td>RC</td>
+    </tr>
+    <th:block th:each="quoteItem : ${quoteItems}">
+        <tr class="TableElement">
+            <td rowspan="3"><span th:text="${quoteItem.quoteId}"></span></td>
+            <td rowspan="3" th:if="${quoteItem.connectionType != 'ETHERWAY_STANDARD'}"><span th:text="${quoteItem.group}"></span></td>
+            <td rowspan="3"><span th:text="${quoteItem.status}"></span></td>
+            <td rowspan="3"><div><span th:text="${quoteItem.serviceClass}"></span><span th:if="${quoteItem.ipRange != null} " th:text="' /' + ${quoteItem.ipRange}"></span></div><div><span th:text="${quoteItem.term}"></span></div></td>
+            <td rowspan="3"><span th:text="${quoteItem.connectionType}"></span></td>
+            <td><span th:text="${quoteItem.aEndEircode}"></span></td>
+            <td><span th:text="${quoteItem.bandwidth}"></span><div th:text="${quoteItem.sla}"></div></td>
+            <td th:text="${quoteItem.aEndTargetAccessSupplier}"></td>
+            <td th:text="${quoteItem.handoff}"></td>
+            <td><span th:text="${quoteItem.logicalLinkBandwidth}"></span><div th:text="${quoteItem.logicalLinkProfile}"></div></td>
+            <td rowspan="3"><span>&euro; </span><span th:text="${quoteItem.nonRecurringPrice}"></span></td>
+            <td rowspan="3"><span>&euro; </span><span th:text="${quoteItem.recurringPrice}"></span><div th:if="${quoteItem.recurringPrice != null }" th:text="${quoteItem.recurringFrequency}"></div></td>
+        </tr>
+        <tr class="TableElement">
+            <td colspan="5"th:text="${quoteItem.aEndAddress}"></td>
+        </tr>
+        <tr class="TableElement">
+            <td colspan="5" th:text="${quoteItem.reason}"></td>
+        </tr>
+    </th:block>
+
+</table>
+
+<div th:if="${status == 'Complete'}">
+    <p class="p1">Quotes are in Euro, exclude VAT, and can change subject to survey, specified contract minimum term, site establishment costs, and capacity check. Quotes are valid for 90 days. All pricing is subject to a final engineering survey which may result in additional customer costs. Pricing excludes customer site costs. Additional network build costs may be notified in accordance with Clause 2.2 of the General Service Schedule. For services that reside at a customer contracted third party site (including BT and non-BT Data Centre locations), BT will deliver to the agreed demarcation. For a Data Centre, this will be the Meet-Me Room (MMR). The customer is responsible for cabling from the MMR to the customer cabinet. BT is not responsible for cable routing within third-party locations (including Data Centres). BT applies an uplift for third party charges it incurs such as ISM, DAA etc.</p>
+    <p class="p1">A standard install applies on all new installations of € 1,000 per Data Centre service instance; and € 2,400 otherwise. If the quote is for a multi-year term, the standard install is often discounted to € 0. Orders that are in Customer Delay for greater than an aggregate of 60 working days will be deemed to be cancelled unless a revised due date can be mutually agreed. If an order is cancelled after being in Customer Delay for an aggregate of 60 working days, the full connection charge will be billed. This will be the standard install (€ 1,000 or € 2,400 dependent on location), any related third-party charges incurred by BT and any exceptional costs previously agreed with the customer. For Etherflow pricing, the initial 1/10 Gig Etherway will need to be in place at your PoP.</p>
+</div>
+
+</body>
+</html>

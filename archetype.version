@@ -1,0 +1,12 @@
+# DO NOT REMOVE THIS FILE
+# Used to track archetype version when generated the project
+# Useful when upgrading the archetype
+archetypeVersion=1.1.12
+groupId=com.btireland.talos.ethernet
+artifactId=ethernet-engine
+package=com.btireland.talos.ethernet.engine
+enableSecurityJwt=false
+enableJPA=true
+enableSoapWS=true
+enableRESTClient=true
+enableMessaging=true

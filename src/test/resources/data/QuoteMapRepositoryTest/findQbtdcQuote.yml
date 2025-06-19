@@ -1,0 +1,22 @@
+qbtdc_order_map:
+  - quote_group_id: 11
+    operator_code: VODA
+    operator_name: VODAFF
+    order_number: BT-QBTDC-101
+    sync_flag: 1
+    supplier: sky
+    status: COMPLETE
+
+qbtdc_item_map:
+  - id: 1
+    quote_id: 100
+    wag_quote_id: 200
+    quote_group_id: 11
+
+quote_email:
+  - id: 1
+    quote_group_id: 11
+    email: test1@bt.com
+  - id: 2
+    quote_group_id: 11
+    email: test2@bt.com

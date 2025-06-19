@@ -1,0 +1,107 @@
+<NOTIFICATION
+        xmlns="http://retail.btireland.com/siebel/schemas/v1">
+    <HEADER>
+        <DATA_CONTRACT>Siebel</DATA_CONTRACT>
+        <ORIGINATOR_CODE>EXT</ORIGINATOR_CODE>
+    </HEADER>
+    <NOTIFICATION_DATA>
+        <NAME>COFE</NAME>
+        <CODE>13905</CODE>
+        <ORDER_NUMBER>TALOS-123-PBTDC-1</ORDER_NUMBER>
+        <MESSAGE_TYPE>C</MESSAGE_TYPE>
+        <MESSAGE_DATE>2019-12-02 17:24:36</MESSAGE_DATE>
+        <ACCOUNT_NUMBER>123456789012345</ACCOUNT_NUMBER>
+        <CIRCUIT>
+            <LOGICAL_DETAILS>
+                <CIRCUIT_REFERENCE>Test Reference</CIRCUIT_REFERENCE>
+                <ACTION_FLAG>P</ACTION_FLAG>
+                <SERVICE_CLASS>BT_ETHERFLOW/VOICE</SERVICE_CLASS>
+                <ADDITIONAL_SERVICES>
+                    <SERVICE_DETAILS>
+                        <SERVICE_NAME>CPE_WAN_IP</SERVICE_NAME>
+                        <SERVICE_VALUE>89.188.167.55/31</SERVICE_VALUE>
+                        <ACTION_FLAG>P</ACTION_FLAG>
+                    </SERVICE_DETAILS>
+                    <SERVICE_DETAILS>
+                        <SERVICE_NAME>GATEWAY_IP</SERVICE_NAME>
+                        <SERVICE_VALUE>89.188.167.90/31</SERVICE_VALUE>
+                        <ACTION_FLAG>P</ACTION_FLAG>
+                    </SERVICE_DETAILS>
+                </ADDITIONAL_SERVICES>
+                <BANDWIDTH>5000</BANDWIDTH>
+                <VLAN>Sample VLAN</VLAN>
+            </LOGICAL_DETAILS>
+        </CIRCUIT>
+        <A_END>
+            <CIRCUIT_DETAILS>
+                <CIRCUIT_REFERENCE>Test AEnd Reference</CIRCUIT_REFERENCE>
+                <SERVICE_CLASS>BT_ETHERWAY</SERVICE_CLASS>
+                <ACTION_FLAG>CH</ACTION_FLAG>
+            </CIRCUIT_DETAILS>
+            <SITE>
+                <LOCATION>
+                    <LINE_1>Line 1</LINE_1>
+                    <LINE_2>Line 2</LINE_2>
+                    <LINE_3>Line 3</LINE_3>
+                    <CITY>City 1</CITY>
+                    <COUNTY>County 1</COUNTY>
+                    <EIRCODE>AF0032</EIRCODE>
+                </LOCATION>
+                <SITE_CONTACT>
+                    <FIRST_NAME>APrimary</FIRST_NAME>
+                    <LAST_NAME>ZZZ</LAST_NAME>
+                    <CONTACT_NUMBER>1234</CONTACT_NUMBER>
+                </SITE_CONTACT>
+                <SITE_CONTACT>
+                    <FIRST_NAME>ASecondary</FIRST_NAME>
+                    <LAST_NAME>XXX</LAST_NAME>
+                    <CONTACT_NUMBER>5678</CONTACT_NUMBER>
+                </SITE_CONTACT>
+                <PORT_SETTINGS>
+                    <ADVA_TYPE>ADVA</ADVA_TYPE>
+                    <ADVA_PORT_NUMBER>500</ADVA_PORT_NUMBER>
+                    <PRESENTATION>AEnd</PRESENTATION>
+                    <PORT_CONFIGURATION>AEnd Config</PORT_CONFIGURATION>
+                    <PORT_SPEED>100</PORT_SPEED>
+                </PORT_SETTINGS>
+            </SITE>
+
+        </A_END>
+        <B_END>
+            <CIRCUIT_DETAILS>
+                <CIRCUIT_REFERENCE>Test BEnd Reference</CIRCUIT_REFERENCE>
+                <SERVICE_CLASS>BT_ETHERWAY</SERVICE_CLASS>
+                <ACTION_FLAG>CH</ACTION_FLAG>
+            </CIRCUIT_DETAILS>
+            <SITE>
+
+                <LOCATION>
+                    <LINE_1>Line 1</LINE_1>
+                    <LINE_2>Line 2</LINE_2>
+                    <LINE_3>Line 3</LINE_3>
+                    <CITY>City 2</CITY>
+                    <COUNTY>County 2</COUNTY>
+                    <EIRCODE>AF0032</EIRCODE>
+                </LOCATION>
+                <SITE_CONTACT>
+                    <FIRST_NAME>BPrimary</FIRST_NAME>
+                    <LAST_NAME>ZZZ</LAST_NAME>
+                    <CONTACT_NUMBER>1234</CONTACT_NUMBER>
+                </SITE_CONTACT>
+                <SITE_CONTACT>
+                    <FIRST_NAME>BSecondary</FIRST_NAME>
+                    <LAST_NAME>XXX</LAST_NAME>
+                    <CONTACT_NUMBER>5678</CONTACT_NUMBER>
+                </SITE_CONTACT>
+                <PORT_SETTINGS>
+                    <ADVA_TYPE>ADVA</ADVA_TYPE>
+                    <ADVA_PORT_NUMBER>600</ADVA_PORT_NUMBER>
+                    <PRESENTATION>BEnd</PRESENTATION>
+                    <PORT_CONFIGURATION>BEnd Config</PORT_CONFIGURATION>
+                    <PORT_SPEED>200</PORT_SPEED>
+                </PORT_SETTINGS>
+            </SITE>
+        </B_END>
+        <ORDER_ID>1-EY1JVR</ORDER_ID>
+    </NOTIFICATION_DATA>
+</NOTIFICATION>

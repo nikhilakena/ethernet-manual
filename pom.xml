@@ -1,0 +1,484 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.btireland.talos.core.common-library</groupId>
+        <artifactId>talos-microsvc-parent</artifactId>
+        <version>0.46</version>
+    </parent>
+    <groupId>com.btireland.talos.ethernet</groupId>
+    <artifactId>ethernet-engine</artifactId>
+    <version>${revision}</version>
+    <name>ethernet-engine</name>
+    <description>Demo project for Spring Boot microservice</description>
+
+    <properties>
+        <revision>UNKNOWN-SNAPSHOT</revision>
+        <java.main.package.directory>src/main/java/com/btireland/talos/quote/quotemanager</java.main.package.directory>
+        <!-- BH please note : 
+            we should be using the JRE image here. However, it does not include the fonts used by Jasper Reports. The problem
+            does not become apparent until an attempt is made to actually generate a report. 
+
+            We attempted to include the Jasper fonts package, but this did not work by itself. It's likely some further configuration
+            of Jasper Reports is likely to make this work correctly. 
+
+            Owing to time pressures we have switched to the JDK image which includes the fonts. When this issue is properly solved
+            we should switch back to the JRE image.
+        -->
+        <!-- <container.image.s2i.source>talos-rhcc-proxy-docker-nexus-dev.apps.greenside-dev.dublin.btireland.ie/ubi8/openjdk-17-runtime:1.14-9</container.image.s2i.source> -->
+        <container.image.s2i.source>talos-rhcc-proxy-docker-nexus-dev.apps.greenside-dev.dublin.btireland.ie/ubi8/openjdk-17:1.14-9</container.image.s2i.source>
+        <container.image.registry.url>default</container.image.registry.url>
+        <container.image.name>talos-ethernet-engine</container.image.name>
+        <camunda.version>7.16.0</camunda.version>
+        <camunda.bpm-process-coverage.version>0.3.2</camunda.bpm-process-coverage.version>
+        <camunda.bpm-junit5.version>1.0.2</camunda.bpm-junit5.version>
+        <camunda.bpm-assert.version>13.0.0</camunda.bpm-assert.version>
+        <database-rider.version>1.36.0</database-rider.version>
+        <pact-consumer.version>0.1.5</pact-consumer.version>
+        <!-- Dependencies versions -->
+        <jasper-reports.version>6.19.1</jasper-reports.version>
+        <apache-commons-compress.version>1.21</apache-commons-compress.version>
+        <apache-poi.version>5.2.2</apache-poi.version>
+        <apache-commons-io.version>2.11.0</apache-commons-io.version>
+        <junit-jupiter.version>5.8.2</junit-jupiter.version>
+        <junit-jupiter.platform.version>1.8.2</junit-jupiter.platform.version>
+        <cucumber.version>7.2.3</cucumber.version>
+        <greenmail.version>1.5.13</greenmail.version>
+        <simpleclient-logback.version>0.16.0</simpleclient-logback.version>
+        <!-- Plugin versions -->
+        <junit.bddReportFolder>${project.testresult.directory}/bddTest</junit.bddReportFolder>
+
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>io.cucumber</groupId>
+                <artifactId>cucumber-bom</artifactId>
+                <version>${cucumber.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>com.tngtech.keycloakmock</groupId>
+            <artifactId>mock-junit5</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-cache</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-aop</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
+        </dependency>
+        <!-- Rest dependencies start -->
+        <dependency>
+            <groupId>com.btireland.talos.core.common-library</groupId>
+            <artifactId>talos-starter-rest</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.btireland.talos.core.common-library</groupId>
+            <artifactId>talos-starter-rest-test</artifactId>
+        </dependency>
+        <!-- Rest dependencies end -->
+        <dependency>
+            <groupId>com.btireland.talos.core.common-library</groupId>
+            <artifactId>talos-starter-jpa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.btireland.talos.core.common-library</groupId>
+            <artifactId>talos-core</artifactId>
+            <version>${talos.common-library.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+
+        <!-- SOAP web service dependencies start -->
+        <dependency>
+            <groupId>com.btireland.talos.core.common-library</groupId>
+            <artifactId>talos-starter-soap</artifactId>
+        </dependency>
+        <!-- SOAP web service dependencies end -->
+
+        <!-- MESSAGING dependencies start -->
+        <dependency>
+            <groupId>com.btireland.talos.core.common-library</groupId>
+            <artifactId>talos-starter-messaging</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.btireland.talos.core.common-library</groupId>
+            <artifactId>talos-starter-messaging-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.retry</groupId>
+            <artifactId>spring-retry</artifactId>
+        </dependency>
+        <!-- MESSAGING dependencies end -->
+
+        <dependency>
+            <groupId>com.btireland.talos.core.common-library</groupId>
+            <artifactId>talos-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+
+        <!-- Camunda dependencies -->
+        <dependency>
+            <groupId>org.camunda.bpm.springboot</groupId>
+            <artifactId>camunda-bpm-spring-boot-starter-rest</artifactId>
+            <version>${camunda.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.camunda.bpm.springboot</groupId>
+            <artifactId>camunda-bpm-spring-boot-starter-webapp</artifactId>
+            <version>${camunda.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.camunda.bpm.springboot</groupId>
+            <artifactId>camunda-bpm-spring-boot-starter-test</artifactId>
+            <version>${camunda.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>camunda-bpm-assert-assertj3-11-1</artifactId>
+                    <groupId>org.camunda.bpm.assert</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.camunda.bpm.extension</groupId>
+            <artifactId>camunda-bpm-process-test-coverage</artifactId>
+            <version>${camunda.bpm-process-coverage.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.camunda.bpm.extension</groupId>
+            <artifactId>camunda-bpm-junit5</artifactId>
+            <version>${camunda.bpm-junit5.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.camunda.bpm.assert</groupId>
+            <artifactId>camunda-bpm-assert</artifactId>
+            <version>${camunda.bpm-assert.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- Camunda dependencies END -->
+        <dependency>
+            <groupId>com.github.database-rider</groupId>
+            <artifactId>rider-core</artifactId>
+            <version>${database-rider.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.database-rider</groupId>
+            <artifactId>rider-junit5</artifactId>
+            <version>${database-rider.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.database-rider</groupId>
+            <artifactId>rider-spring</artifactId>
+            <version>${database-rider.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.sf.jasperreports</groupId>
+            <artifactId>jasperreports</artifactId>
+            <version>${jasper-reports.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>net.sf.jasperreports</groupId>
+            <artifactId>jasperreports-fonts</artifactId>
+            <version>${jasper-reports.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-compress</artifactId>
+            <version>${apache-commons-compress.version}</version>
+        </dependency>
+        <!-- required to generate spreadsheets -->
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi</artifactId>
+            <version>${apache-poi.version}</version>
+        </dependency>
+        <!-- required by Apache PoI -->
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>${apache-commons-io.version}</version>
+        </dependency>
+
+        <!-- thymeleaf dependencies start -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-thymeleaf</artifactId>
+        </dependency>
+        <!-- thymeleaf dependencies end -->
+        <dependency>
+            <groupId>io.cucumber</groupId>
+            <artifactId>cucumber-java</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.cucumber</groupId>
+            <artifactId>cucumber-junit-platform-engine</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.cucumber</groupId>
+            <artifactId>cucumber-spring</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-suite</artifactId>
+            <version>${junit-jupiter.platform.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- Pact consumer dependencies -->
+        <dependency>
+            <groupId>com.remondis.cdc</groupId>
+            <artifactId>pact-consumer-builder</artifactId>
+            <version>${pact-consumer.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.icegreen</groupId>
+            <artifactId>greenmail</artifactId>
+            <version>${greenmail.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- micrometer dependencies -->
+        <dependency>
+            <groupId>io.prometheus</groupId>
+            <artifactId>simpleclient_logback</artifactId>
+            <version>${simpleclient-logback.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
+        </dependency>
+        <!-- micrometer dependencies -->
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>pl.project13.maven</groupId>
+                <artifactId>git-commit-id-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>jaxb2-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>xjc-talosWS</id>
+                        <goals>
+                            <goal>xjc</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>src/main/resources/xsd/talosWS-xsd-v1.xsd</source>
+                            </sources>
+                            <clearOutputDir>false</clearOutputDir>
+                            <packageName>com.btireland.talos.ethernet.engine.soap.talosws</packageName>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>xjc-pbdtcorder</id>
+                        <goals>
+                            <goal>xjc</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>src/main/resources/xsd/pbtdcorder-xsd-v1.xsd</source>
+                                <source>src/main/resources/xsd/qbtdcorder-xsd-v1.xsd</source>
+                            </sources>
+                            <clearOutputDir>false</clearOutputDir>
+                            <packageName>com.btireland.talos.ethernet.engine.soap.orders</packageName>
+                        </configuration>
+                    </execution>
+
+                    <execution>
+                        <id>xjc-notification</id>
+                        <goals>
+                            <goal>xjc</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>src/main/resources/xsd/siebelNotification-xsd-v1.xsd</source>
+                            </sources>
+                            <clearOutputDir>false</clearOutputDir>
+                            <packageName>com.btireland.talos.ethernet.engine.soap.notifications</packageName>
+                        </configuration>
+                    </execution>
+
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <systemPropertyVariables>
+                        <user.timezone>UTC</user.timezone>
+                    </systemPropertyVariables>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>au.com.dius.pact.provider</groupId>
+                <artifactId>maven</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>com.google.cloud.tools</groupId>
+                <artifactId>jib-maven-plugin</artifactId>
+                <version>3.3.1</version>
+                <configuration>
+                  <from> 
+                    <image>${container.image.s2i.source}</image>
+                  </from>
+                  <to>
+                    <image>${container.image.registry.url}/${container.image.name}:latest</image>
+                  </to>
+                  <container>
+                    <entrypoint>/opt/run-java/run/run-java.sh</entrypoint>
+                    <environment>
+                        <JAVA_MAIN_CLASS>@/app/jib-main-class-file</JAVA_MAIN_CLASS>
+                        <JAVA_CLASSPATH>@/app/jib-classpath-file</JAVA_CLASSPATH>
+                    </environment>
+                  </container>
+                </configuration>
+              </plugin>
+        </plugins>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>${maven-compiler-plugin.version}</version>
+                    <configuration>
+                        <source>${java.version}</source>
+                        <target>${java.version}</target>
+                        <annotationProcessorPaths>
+                            <path>
+                                <groupId>org.springframework.boot</groupId>
+                                <artifactId>spring-boot-configuration-processor</artifactId>
+                                <version>${spring-boot.version}</version>
+                            </path>
+
+                            <!-- For JPA static metamodel generation -->
+                            <path>
+                                <groupId>org.hibernate</groupId>
+                                <artifactId>hibernate-jpamodelgen</artifactId>
+                                <version>${hibernate.version}</version>
+                            </path>
+                            <path>
+                                <groupId>org.projectlombok</groupId>
+                                <artifactId>lombok</artifactId>
+                                <version>${lombok.version}</version>
+                            </path>
+                            <path>
+                                <groupId>org.mapstruct</groupId>
+                                <artifactId>mapstruct-processor</artifactId>
+                                <version>${mapstruct.version}</version>
+                            </path>
+                        </annotationProcessorPaths>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>au.com.dius.pact.provider</groupId>
+                    <artifactId>maven</artifactId>
+                    <version>${pact.version}</version>
+                    <configuration>
+                        <pactBrokerUrl>${pactbroker.url}</pactBrokerUrl>
+                        <pactBrokerUsername>${pactbroker.auth.username}</pactBrokerUsername>
+                        <pactBrokerPassword>${pactbroker.auth.password}</pactBrokerPassword>
+                        <tags>
+                            <tag>${pact.tag}</tag>
+                        </tags>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+
+    <profiles>
+
+        <profile>
+            <id>push-container</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.google.cloud.tools</groupId>
+                        <artifactId>jib-maven-plugin</artifactId>
+                        <version>3.3.1</version>
+                        <configuration>
+                            <to>
+                                <image>${container.image.registry.url}/${container.image.name}:latest</image>
+                                <tags>
+                                    <tag>${revision}</tag>
+                                </tags>
+                            </to>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>bddTest</id>
+            <properties>
+                <junit.reportFolder>${junit.bddReportFolder}</junit.reportFolder>
+                <junit.tags>BDDTest,com.btireland.talos.core.common.test.tag.BDDTest
+                </junit.tags>
+                <skipITs>true</skipITs>
+            </properties>
+        </profile>
+    </profiles>
+
+</project>

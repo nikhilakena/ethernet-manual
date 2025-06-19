@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
+    <soap:Header>
+        <wsse:Security soap:mustUnderstand="1">
+            <wsse:UsernameToken>
+                <wsse:Username>SKYWS</wsse:Username>
+                <wsse:Password>iLwt5oSK</wsse:Password>
+            </wsse:UsernameToken>
+        </wsse:Security>
+    </soap:Header>
+    <soap:Body>
+        <wag:QBTDC xmlns:wag="http://wag.btireland.ie/WAG_WS/">
+            <wag:VERSION>1.0</wag:VERSION>
+            <wag:ORDER>
+                <wag:HEADER>
+                    <wag:DATA_CONTRACT_NAME>WAG</wag:DATA_CONTRACT_NAME>
+                    <wag:ORIGINATOR_CODE>EXT</wag:ORIGINATOR_CODE>
+                    <wag:TRANSACTION_ID>10101</wag:TRANSACTION_ID>
+                    <wag:DATE_TIME_STAMP>15/03/2023 10:33:46</wag:DATE_TIME_STAMP>
+                </wag:HEADER>
+                <wag:ORDER_DATA>
+                    <wag:OPERATOR_DETAILS>
+                        <wag:NAME>SKY</wag:NAME>
+                        <wag:CODE>83758</wag:CODE>
+                    </wag:OPERATOR_DETAILS>
+                    <wag:ORDER_DETAILS>
+                        <wag:SYNC_REQUIRED>Y</wag:SYNC_REQUIRED>
+                        <wag:ORDER_NUMBER>1</wag:ORDER_NUMBER>
+                        <wag:TYPE>QBTDC</wag:TYPE>
+                        <wag:APPLICATION_DATE>15/03/2023</wag:APPLICATION_DATE>
+                        <!--Optional:-->
+                        <wag:PROJECT_KEY>projectkey</wag:PROJECT_KEY>
+                        <!--Optional:-->
+                        <wag:OBO>sky</wag:OBO>
+                        <wag:RECURRING_FREQUENCY>MONTHLY</wag:RECURRING_FREQUENCY>
+                        <!--Optional:-->
+                        <wag:EMAIL_RECIPIENTS>
+                            <wag:EMAIL>test1@bt.com</wag:EMAIL>
+                            <wag:EMAIL>test2@bt.com</wag:EMAIL>
+                        </wag:EMAIL_RECIPIENTS>
+                    </wag:ORDER_DETAILS>
+                    <!--1 or more repetitions:-->
+                    <wag:QUOTE_ITEM_REQUEST>
+                        <wag:PRODUCT>WIC</wag:PRODUCT>
+                        <wag:CONNECTION_TYPE>ETHERWAY_STANDARD</wag:CONNECTION_TYPE>
+                        <wag:TERM>5</wag:TERM>
+                        <!--Optional:-->
+                        <wag:IP>
+                            <wag:IP_RANGE>31</wag:IP_RANGE>
+                        </wag:IP>
+                        <wag:LOGICAL>
+                            <wag:ACTION_FLAG>P</wag:ACTION_FLAG>
+                            <wag:BANDWIDTH>6000</wag:BANDWIDTH>
+                            <wag:PROFILE>PRIMARY</wag:PROFILE>
+                        </wag:LOGICAL>
+                        <wag:A_END>
+                            <wag:LOCATION>
+                                <wag:EIRCODE>A00F027</wag:EIRCODE>
+                            </wag:LOCATION>
+                            <wag:ACCESS>
+                                <wag:ACTION_FLAG>P</wag:ACTION_FLAG>
+                                <!--Optional:-->
+                                <wag:ACCESS_SUPPLIER>OFF-NET</wag:ACCESS_SUPPLIER>
+                                <wag:BANDWIDTH>10</wag:BANDWIDTH>
+                                <!--Optional:-->
+                                <wag:SLA>ENHANCED</wag:SLA>
+                            </wag:ACCESS>
+                        </wag:A_END>
+                        <wag:B_END>
+                            <wag:LOCATION>
+                                <!--Optional:-->
+                                <wag:HANDOVER_NODE>INTERNET</wag:HANDOVER_NODE>
+                            </wag:LOCATION>
+                            <wag:ACCESS>
+                                <wag:ACTION_FLAG>CH</wag:ACTION_FLAG>
+                            </wag:ACCESS>
+                        </wag:B_END>
+                    </wag:QUOTE_ITEM_REQUEST>
+                </wag:ORDER_DATA>
+            </wag:ORDER>
+        </wag:QBTDC>
+    </soap:Body>
+</soap:Envelope>

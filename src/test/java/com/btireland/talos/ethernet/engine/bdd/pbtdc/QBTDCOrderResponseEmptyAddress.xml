@@ -1,0 +1,65 @@
+<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
+    <SOAP-ENV:Header/>
+    <SOAP-ENV:Body>
+        <QBTDCRESPONSE xmlns="http://wag.btireland.ie/WAG_WS/">
+            <VERSION>1.0</VERSION>
+            <ORDER_ID>1</ORDER_ID>
+            <NOTIFICATION>
+                <HEADER>
+                    <DATA_CONTRACT_NAME>WAG</DATA_CONTRACT_NAME>
+                    <ORIGINATOR_CODE>EXT</ORIGINATOR_CODE>
+                    <TRANSACTION_ID>0</TRANSACTION_ID>
+                    <DATE_TIME_STAMP>25/05/2022 05:17:28</DATE_TIME_STAMP>
+                </HEADER>
+                <NOTIFICATION_DATA>
+                    <NAME>SKY</NAME>
+                    <CODE>83758</CODE>
+                    <ORDER_NUMBER>1</ORDER_NUMBER>
+                    <PROJECT_KEY>xyz</PROJECT_KEY>
+                    <RECURRING_FREQUENCY>ANNUAL</RECURRING_FREQUENCY>
+                    <APPLICATION_DATE>03/03/2022</APPLICATION_DATE>
+                    <RECEIVED_DATE>03/03/2022 10:55:11</RECEIVED_DATE>
+                    <MESSAGE_TYPE>WSA</MESSAGE_TYPE>
+                    <MESSAGE_DATE>05/04/2023 21:55:03</MESSAGE_DATE>
+                    <QUOTE_ITEM>
+                        <QUOTE_ITEM_ID>1</QUOTE_ITEM_ID>
+                        <STATUS>Quoted</STATUS>
+                        <NON_RECURRING_PRICE>1000</NON_RECURRING_PRICE>
+                        <RECURRING_PRICE>300</RECURRING_PRICE>
+                        <PRODUCT>WIC</PRODUCT>
+                        <TERM>5</TERM>
+                        <IP>
+                            <IP_RANGE>31</IP_RANGE>
+                        </IP>
+                        <LOGICAL>
+                            <ACTION_FLAG>P</ACTION_FLAG>
+                            <BANDWIDTH>6000</BANDWIDTH>
+                            <PROFILE>PRIMARY</PROFILE>
+                        </LOGICAL>
+                        <A_END>
+                            <LOCATION>
+                                <NETWORK_STATUS>ON-NET</NETWORK_STATUS>
+                                <EIRCODE>A00F027</EIRCODE>
+                            </LOCATION>
+                            <ACCESS>
+                                <ACTION_FLAG>P</ACTION_FLAG>
+                                <REQ_ACCESS_SUPPLIER>ON-NET</REQ_ACCESS_SUPPLIER>
+                                <TARGET_ACCESS_SUPPLIER>ON-NET</TARGET_ACCESS_SUPPLIER>
+                                <BANDWIDTH>10</BANDWIDTH>
+                                <SLA>ENHANCED</SLA>
+                            </ACCESS>
+                        </A_END>
+                        <B_END>
+                            <LOCATION>
+                                <HANDOVER_NODE>INTERNET</HANDOVER_NODE>
+                            </LOCATION>
+                            <ACCESS>
+                                <ACTION_FLAG>CH</ACTION_FLAG>
+                            </ACCESS>
+                        </B_END>
+                    </QUOTE_ITEM>
+                </NOTIFICATION_DATA>
+            </NOTIFICATION>
+        </QBTDCRESPONSE>
+    </SOAP-ENV:Body>
+</SOAP-ENV:Envelope>

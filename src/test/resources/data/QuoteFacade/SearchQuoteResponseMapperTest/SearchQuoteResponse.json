@@ -1,0 +1,30 @@
+{
+  "quoteGroups": [
+    {
+      "quoteGroupId": 1,
+      "quoteDate": "2023-04-07T11:50:54",
+      "quotes": [
+        {
+          "quoteId": 1,
+          "eircode": "A00F027",
+          "recurringChargePeriod": "MONTHLY"
+        }
+      ],
+      "serviceClass": "WIC",
+      "connectionType": "ETHERWAY_STANDARD"
+    },
+    {
+      "quoteGroupId": 2,
+      "quoteDate": "2023-04-07T11:50:54",
+      "quotes": [
+        {
+          "quoteId": 2,
+          "eircode": "A00F027",
+          "recurringChargePeriod": "MONTHLY"
+        }
+      ],
+      "serviceClass": "WIC",
+      "connectionType": "ETHERWAY_STANDARD"
+    }
+  ]
+}

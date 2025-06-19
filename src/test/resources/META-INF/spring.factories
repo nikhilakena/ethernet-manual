@@ -1,0 +1,2 @@
+org.springframework.test.context.TestExecutionListener=\
+com.btireland.talos.ethernet.engine.config.IntegrationTestExecutionListener

@@ -1,0 +1,27 @@
+{
+  "recurringChargePeriod": "MONTHLY",
+  "serviceClass": "WIC",
+  "connectionType": "ETHERWAY_STANDARD",
+  "quoteItemTerm": 3,
+  "durationUnit": "YEARS",
+  "aEndResponse": {
+    "eircode": "A00F027",
+    "action": "PROVIDE",
+    "bandwidth": 10,
+    "sla": "STANDARD",
+    "accessSupplier": "OFF_NET"
+  },
+  "bEndResponse": {
+    "handOverNode": "INTERNET"
+  },
+  "logicalResponse": {
+    "bandwidth": 10000,
+    "profile": "PRIMARY",
+    "ipRange": 31
+  },
+  "rejectionDetailsResponse": {
+    "rejectCode": "EIRCODE_INVALID",
+    "rejectReason": "Eircode is invalid",
+    "quoteRejectedDate": "2021-01-08T19:13:14"
+  }
+}

@@ -1,0 +1,257 @@
+image: $BTI_OPENSHIFT_BUILD_IMAGE_REGISTRY/talos-build/rh-ubi8-openjdk17:1.14-10
+
+variables:
+  MAVEN_OPTS: "-Dmaven.repo.local=~/.m2/repository"
+  
+  
+
+# Cache all maven artifacts across all branches.
+# Note that gitlab automatically disables caching for protected branches (eg master etc)
+
+cache: &mvn_cache
+  key: M2_REPO
+  paths:
+    - ~/.m2/repository
+  policy: pull
+
+# Set up the Maven settings containing proxy server details, local repository etc.
+
+before_script:
+  - mkdir -p ~/.m2
+  - cp -v $TALOS_MAVEN_SETTINGS_XML ~/.m2/settings.xml
+  
+
+stages:
+  - setup
+  - get-dependencies
+  - compile
+  - test
+  - publish-pacts
+  - scan
+  ##- code-coverage
+  #- quality-gates
+  - generate-container
+  - rollout
+
+# Perform some initial setup.
+# Since the image used for building may not include git, we're extracting and saving the
+# output from git-describe here. Saving it in build.env makes it visible to other stages.
+
+setup:
+  stage: setup
+  image: image-registry.apps.greenside-dev.dublin.btireland.ie/talos-build/gitlab-runner-helper:x86_64-v14.0.1
+  artifacts:
+    reports:
+      dotenv: build.env
+  script:
+    - git describe 
+    - echo "APP_VERSION=$(git describe --dirty)" > build.env
+    - echo $APP_VERSION 
+    - cat build.env
+    - echo $PROJECT_GID
+
+# Use Maven to store and cache any dependencies required by the build later.
+# Note that the dependency resolution does not download all artifacts required
+# by certain other build steps, seems to be a Maven limitation.
+
+get-dependencies:
+  stage: get-dependencies
+  cache:
+    <<: *mvn_cache
+    policy: pull-push
+  script:
+    - mvn -B dependency:resolve-plugins dependency:go-offline
+    - mvn help:evaluate -Dexpression=project.groupId -q -DforceStdout
+    - mvn help:evaluate -Dexpression=project.artifactId -q -DforceStdout
+
+    - echo "PROJECT_GID=$(mvn help:evaluate -Dexpression=project.groupId -q -DforceStdout)" >> build.env 
+    - echo "PROJECT_AID=$(mvn help:evaluate -Dexpression=project.artifactId -q -DforceStdout)" >> build.env 
+  artifacts:
+    reports:
+      dotenv: build.env
+
+# Compile the java source code here and save the artifacts.
+
+compile:
+  stage: compile
+  artifacts:
+    name: "$CI_JOB_NAME"
+    expire_in: 1 day
+    paths:
+      - target/*
+  script:
+    - echo $PROJECT_GID
+    - mvn -B -Drevision=$APP_VERSION -DskipTests=true compile
+
+# Execute unit tests and save the reports.
+
+unit-test:
+  stage: test
+  script:
+#   - echo "Running tests and generating coverage report"
+#   - mvn test
+#   - mvn jacoco:report
+# artifacts:
+#   reports:
+#     junit: target/test-results/test/TEST-*.xml
+#     cobertura: target/jacoco/jacoco.xml
+#   paths:
+#     - target/test-results
+#     - target/jacoco/
+  artifacts:
+    reports:
+      junit: target/test-results/test/TEST-*.xml
+    paths:
+      - target/test-results
+      - target/jacoco
+    expire_in: 1 day
+  script:
+    - mvn test -B -Drevision=$APP_VERSION -P utTest
+    - mvn jacoco:report
+    - mkdir target/jacoco/utest
+    - cp target/jacoco/test/index.html target/jacoco/utest/index.html
+# Execute integration tests and save the reports; also upload pact information.
+
+integration-test:
+  stage: test
+  artifacts:
+    reports:
+      junit: target/test-results/integrationTest/TEST-*.xml
+    paths:
+      - target/test-results
+      - target/jacoco
+    expire_in: 1 day
+  script:
+    - mvn test -B -Drevision=$APP_VERSION -Dpact.verifier.publishResults=true -Dpact.provider.version=$APP_VERSION -Dpact.broker.providerTags=master -Dpact.provider.tag=master -Dpact.broker.username=$PACT_BROKER_USERNAME -Dpact.broker.password=$PACT_BROKER_PASSWORD -P itTest
+
+# Execute BDD tests and save the reports
+
+bdd-test:
+  stage: test
+  artifacts:
+    reports:
+      junit: target/test-results/bddTest/TEST-*.xml
+    paths:
+      - target/test-results
+      - target/jacoco
+    expire_in: 1 day
+  script:
+    - mvn test -B -Drevision=$APP_VERSION -P bddTest
+
+# Publish pacts. Only done on the master branch.
+
+publish-pacts:
+  stage: publish-pacts
+  only:
+    - master
+  script:
+    - mvn pact:publish -B -Drevision=$APP_VERSION -Dpact.tag=master -Dpact.broker.url=$PACT_BROKER_URL -Dpact.broker.username=$PACT_BROKER_USERNAME -Dpact.broker.password=$PACT_BROKER_PASSWORD
+
+# Perform the SonarQube scan. This must take place after tests complete so that coverage data
+# can be uploaded to SonarQube.
+
+sonarqube-scan:
+  stage: scan
+  only:
+   - master
+  script:
+    - mvn sonar:sonar -B -DskipTests=true -Drevision=$APP_VERSION -Dsonar.host.url=$SONARQUBE_URL -Dsonar.login=$GITLAB_SONAR_USER -Dsonar.password=$GITLAB_SONAR_PASSWORD
+
+#code-coverage:
+#  stage: code-coverage
+#  except:
+#    - anl
+#    - jacoco_coverage 
+#  image: $BTI_OPENSHIFT_BUILD_IMAGE_REGISTRY/talos-build/alpine-sonar:v.0.1
+#  script:
+#    - echo "Checking test coverage"
+#    - >
+#      COVERAGE=$(cat target/jacoco/utest/index.html | grep -o 'Total[^%]*%' | sed 's/<.*>//; s/%//; s/Total//')
+#    - >
+#      if [ "$(echo "$COVERAGE < $COVERAGE_THRESHOLD" | bc)" -eq 1 ]; then
+#
+#        echo "Test coverage is too low $COVERAGE% < 80%"
+#        exit 1
+#      fi
+#    - echo "Test coverage sufficient $COVERAGE% >= 80%"
+#quality-gates:
+#  stage: quality-gates
+#  except:
+#    - anl 
+#    - manual 
+#    - dev 
+#  image: $BTI_OPENSHIFT_BUILD_IMAGE_REGISTRY/talos-build/alpine-sonar:v.0.1
+#  script:
+#    - echo "Checking quality gate status"
+#    - >
+#      STATUS=$(curl -s -u $SONAR_TOKEN: "$SONARQUBE_URL/api/qualitygates/project_status?projectKey=$PROJECT_GID:$PROJECT_AID" |jq #-r .projectStatus.status)
+#    - >
+#      if [ "$STATUS" != "OK" ]; then
+#        echo "Quality gate failed $STATUS"
+#        echo "Sonarqube reports:https://sonarqube-tools.apps.greenside-dev.dublin.btireland.ie/dashboard?#id=$PROJECT_GID%3A"$PROJECT_AID
+#        exit 1
+#      fi
+#    - echo "Quality gate passed $STATUS"
+#    - echo "Sonarqube reports:https://sonarqube-tools.apps.greenside-dev.dublin.btireland.ie/dashboard?#id=$PROJECT_GID%3A"$PROJECT_AID
+#    - echo "Checking test coverage"
+#    - >
+#      COVERAGE=$(curl -s -u $SONAR_TOKEN: "$SONARQUBE_URL/api/measures/component?metricKeys=coverage&#component=$PROJECT_GID:$PROJECT_AID" |jq -r .component.measures[].value)
+#    - >
+#      if [ "$(echo "$COVERAGE < 65" | bc)" -eq 1 ]; then
+#
+#        echo "Test coverage too low $COVERAGE%"
+#        echo "Sonarqube reports:https://sonarqube-tools.apps.greenside-dev.dublin.btireland.ie/dashboard?#id=$PROJECT_GID%3A"$PROJECT_AID
+#        exit 1
+#      fi
+#    - echo "Test coverage sufficient $COVERAGE%"
+#    - echo "Checking test coverage"
+#    - echo "Sonarqube reports:https://sonarqube-tools.apps.greenside-dev.dublin.btireland.ie/dashboard?#id=$PROJECT_GID%3A"$PROJECT_AID
+    
+# Build the container image and push it to the repository.
+# This lies on the Jib Java-based container generation tool.
+# Jib expects to find a docker config.json set up with the correct permissions.
+# The push-container Maven profile pushes to a remote repo rather than a local.
+
+generate-container:
+  stage: generate-container
+  only:
+    - master
+    - anl
+    - manual
+  script:
+    - mkdir -p ~/.docker; echo $DOCKER_AUTH_CONFIG > ~/.docker/config.json
+    - >
+      if [ "$CI_COMMIT_BRANCH" = "master" ]; then
+         mvn -P push-container -DskipTests=true -Drevision=$APP_VERSION -Dcontainer.image.registry.url=$TALOS_DESTINATION_REGISTRY_URL jib:build
+      else
+        mvn -P push-container -DskipTests=true -Dcontainer.image.name=$TALOS_APP_DEPLOYMENTCONFIG-$CI_COMMIT_BRANCH -Drevision=$APP_VERSION -Dcontainer.image.registry.url=$TALOS_DESTINATION_REGISTRY_URL jib:build
+      fi
+    
+  
+
+# Perform the Openshift rollout and wait 2 minutes for it to complete.
+# We need to log in with an appropriate token here with permissions to
+
+openshift-rollout:
+  stage: rollout
+  only:
+    - master
+    - anl
+    - manual
+  image: $BTI_OPENSHIFT_BUILD_IMAGE_REGISTRY/talos-build/rh-ose-cli:v4.12
+  cache: {} # Cache is not required here
+  script:
+    - >
+      if [ "$CI_COMMIT_BRANCH" = "master" ]; then
+         CI_COMMIT_BRANCH=dev
+         oc login --server $TALOS_OPENSHIFT_API_URL --token $TALOS_DEPLOYENV_DEV_GITLAB_CI_AUTH_TOKEN
+         oc project talos-deployenv-$CI_COMMIT_BRANCH
+         oc rollout latest dc/$TALOS_APP_DEPLOYMENTCONFIG
+         oc rollout status --timeout=2m --watch=true dc/$TALOS_APP_DEPLOYMENTCONFIG
+      else
+         oc login --server $TALOS_OPENSHIFT_API_URL --token $TALOS_DEPLOYENV_DEV_GITLAB_CI_AUTH_TOKEN
+         oc project talos-deployenv-$CI_COMMIT_BRANCH
+         oc rollout latest dc/$TALOS_APP_DEPLOYMENTCONFIG
+         oc rollout status --timeout=2m --watch=true dc/$TALOS_APP_DEPLOYMENTCONFIG
+      
+      fi    

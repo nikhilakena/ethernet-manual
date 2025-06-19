@@ -1,0 +1,3 @@
+ALTER TABLE access AUTO_INCREMENT = 1;
+ALTER TABLE intervention_details AUTO_INCREMENT = 1;
+ALTER TABLE qbtdc_order_map AUTO_INCREMENT = 1;

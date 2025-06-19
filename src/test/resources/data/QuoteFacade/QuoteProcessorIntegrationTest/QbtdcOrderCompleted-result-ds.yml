@@ -1,0 +1,13 @@
+qbtdc_order_map:
+  - quote_group_id: "regex:\\d+"
+    operator_code: 83758
+    operator_name: SKY
+    sync_flag: 1
+    status: COMPLETE
+    supplier: sky
+
+qbtdc_item_map:
+  - quote_group_id: "regex:\\d+"
+    wag_quote_id: 10
+    quote_id: "regex:\\d+"
+

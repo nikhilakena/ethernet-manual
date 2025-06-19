@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<wsdl:definitions name="Wag"
+                  xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+                  xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+                  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+                  xmlns:tns="http://wag.btireland.ie/WAG_WS/"
+                  targetNamespace="http://wag.btireland.ie/WAG_WS/">
+
+    <wsdl:types>
+        <xsd:schema>
+            <xsd:import namespace="http://wag.btireland.ie/WAG_WS/" schemaLocation="xsd/pbtdcorder-xsd-v1.xsd"/>
+        </xsd:schema>
+    </wsdl:types>
+
+    <wsdl:message name="PBTDCOrderRequest">
+        <wsdl:part element="tns:PBTDCOrder" name="PBTDCOrder"/>
+    </wsdl:message>
+    <wsdl:message name="PBTDCOrderresponse">
+        <wsdl:part element="tns:PBTDCOrderresponse" name="PBTDCOrderresponse"/>
+    </wsdl:message>
+
+    <wsdl:portType name="PBTDCPort">
+        <wsdl:operation name="PBTDC">
+            <wsdl:documentation>Create PBTDC Order</wsdl:documentation>
+            <wsdl:input message="tns:PBTDCOrder" name="PBTDCOrder"/>
+            <wsdl:output message="tns:PBTDCOrderresponse" name="PBTDCOrderresponse"/>
+        </wsdl:operation>
+
+    </wsdl:portType>
+
+    <wsdl:binding name="PBTDC" type="tns:PBTDCPort">
+        <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <wsdl:operation name="PBTDC">
+            <soap:operation soapAction=""/>
+            <wsdl:input name="PBTDCOrderRequest">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="PBTDCOrderresponse">
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:service name="PBTDC">
+        <wsdl:port binding="tns:PBTDC" name="PBTDCPort">
+            <soap:address location="http://localhost:9090/ws"/>
+        </wsdl:port>
+
+    </wsdl:service>
+
+</wsdl:definitions>

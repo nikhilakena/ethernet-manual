@@ -1,0 +1,35 @@
+{
+  "mappings": [
+    {
+      "request": {
+        "method": "POST",
+        "url": "/api/v1/wag/pbtdc-orders"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+    "orders":{"orderId":1,"changedAt":null,"createdAt":"2022-02-16T15:16:28.7446581","oao":"sky","operatorName":"SKY","operatorCode":"83758","dataContractName":"WAG","originatorCode":"EXT","transactionId":"100","orderRequestDateTime":"2022-02-16T15:16:28.7446581","orderNumber":"1","orderServiceType":"PBTDC","telephoneNo":null,"accountNumber":null,"targetAccount":null,"wassetId":null,"orderStatus":"Talos Pending","workflowStatus":"Talos Pending Push","referenceOrderId":null,"siebelNumber":null,"esla":null,"agent":null,"dsl":null,"supplierName":null,"supplierOrderId":null,"supplierOrderReference":null,"dueCompletionDate":null,"pcn":null},"pbtdcdto":{"id":null,"changedAt":null,"createdAt":null,"orderId":null,"portRoutingPrefix":"","applicationDate":"2022-02-16T15:16:28.7446581","requiredDate":"2022-02-16T15:16:28.7446581","requiredSchedule":null,"requiredOption":null,"wagSlotId":null,"appointmentId":null,"supplierAppointmentId":"","insituSiteVisit":null,"accountOption":"NA","accountNumber":"string","externalNumber":"","occupantName":"string","contactFirstName":null,"contactLastName":null,"contactWorkNumber":null,"contactHomeNumber":null,"contactMobileNumber":"string","contactEmail":null,"serviceAddressId":"","serviceAddressEircode":null,"premisesId":null,"serviceClass":null,"serviceCode":null,"productGroup":"WBF","primaryServiceSiroId":null,"actionFlag":null,"telephoneNumber":null,"referenceServiceActionFlag":null,"referenceServiceClass":null,"egressGroup":null,"arsOrderId":"","newTelephoneNumber":null,"orderToSupplier":null,"multicast":null,"repairSla":null,"eligibilityStatus":null,"cabinet":null,"prequalResult":null,"qaPrimaryService":null,"qaBroadbandService":null,"qaRepairSla":null,"primaryOwner":null,"primaryWassetId":null,"primaryWassetType":null,"broadbandOwner":null,"broadbandWassetId":null,"isVua":null,"appointmentDate":null,"appointmentSlot":null,"appointmentType":null,"dueCompletionDate":null,"mode":null,"inHomeInstallation":null,"cpeInstallation":null,"voipServiceEircode":null,"voipServiceActionFlag":null,"voipServiceServiceClass":null,"voipServiceUsername":null,"voipServicePassword":null,"referenceVoiceServiceAccountNumber":null,"referenceVoiceServiceTelephoneNumber":null,"referenceVoiceServiceActionFlag":null,"locationDescription":null,"technicianNotes":null},"services":{"id":null,"changedAt":null,"createdAt":null,"orderId":null,"telephoneNumber":null,"actionFlag":null,"serviceClass":null,"serviceCode":null,"additionalServicesPresent":false}
+
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "POST",
+        "url": "/api/v1/notification"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "id": 1, "changedAt": "2022-02-16T15:16:28.7446581", "createdAt": "2022-02-16T15:16:28.7446581", "source": "source", "type": "type", "reference": "reference", "transactionId": 0, "content": null
+        }
+      }
+    }
+  ]
+}

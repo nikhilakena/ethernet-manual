@@ -1,0 +1,106 @@
+{
+  "quoteGroupId": 1,
+  "serviceClass": "WIC",
+  "connectionType": "ETHERWAY_STANDARD",
+  "resellerTransactionId": "XXX",
+  "projectIdentifier": "VODA_01",
+  "quoteDate": "2021-01-08T19:13:14",
+  "relatedPartyResponses": [
+    {
+      "name": "sky",
+      "role": "BUYER"
+    }
+  ],
+  "quotes": [
+    {
+      "quoteId": 1001,
+      "quoteState": "REJECTED",
+      "recurringChargePeriod": "MONTHLY",
+      "serviceClass": "WIC",
+      "connectionType": "ETHERWAY_STANDARD",
+      "quoteItemTerm": 3,
+      "durationUnit": "YEARS",
+      "aEndResponse": {
+        "eircode": "A00F027",
+        "action": "PROVIDE",
+        "bandwidth": 10,
+        "sla": "STANDARD",
+        "accessSupplier": "OFF_NET"
+      },
+      "bEndResponse": {
+        "handOverNode": "INTERNET",
+        "action": "MODIFY"
+      },
+      "logicalResponse": {
+        "bandwidth": 10000,
+        "profile": "PRIMARY",
+        "ipRange": 31,
+        "action": "PROVIDE"
+      },
+      "quotePriceResponses": [
+        {
+          "recurringChargePeriod": "MONTHLY",
+          "priceType": "RECURRING"
+        }
+      ],
+      "rejectionDetailsResponse": {
+        "rejectCode": "EIRCODE_INVALID",
+        "rejectReason": "Eircode is invalid",
+        "quoteRejectedDate": "2021-01-08T19:13:14"
+      },
+      "notes": "Rejection Notes"
+    },
+    {
+      "quoteId": 1002,
+      "quoteState": "QUOTED",
+      "recurringChargePeriod": "MONTHLY",
+      "serviceClass": "WIC",
+      "connectionType": "ETHERWAY_STANDARD",
+      "quoteItemTerm": 3,
+      "durationUnit": "YEARS",
+      "aEndResponse": {
+        "eircode": "A00F028",
+        "action": "PROVIDE",
+        "bandwidth": 10,
+        "sla": "STANDARD",
+        "accessSupplier": "OFF_NET",
+        "targetAccessSupplier": "OFF_NET",
+        "fullAddress": "HUGH JORDAN & CO. LIMITED, UNIT 4, CONSTELLATION ROAD, AIRWAYS INDUSTRIAL ESTATE, DUBLIN 17",
+        "networkStatus": "OFF_NET",
+        "multiEircode": "N"
+      },
+      "bEndResponse": {
+        "handOverNode": "INTERNET",
+        "action": "MODIFY"
+      },
+      "logicalResponse": {
+        "bandwidth": 10000,
+        "profile": "PRIMARY",
+        "ipRange": 31,
+        "action": "PROVIDE"
+      },
+      "quotePriceResponses": [
+        {
+          "recurringChargePeriod": "MONTHLY",
+          "priceType": "RECURRING",
+          "quotePrice": "1000"
+        },
+        {
+          "recurringChargePeriod": null,
+          "priceType": "NON_RECURRING",
+          "quotePrice": "2000"
+        },
+        {
+          "recurringChargePeriod": "MONTHLY",
+          "priceType": "ETHERFLOW_RECURRING",
+          "quotePrice": "600"
+        },
+        {
+          "recurringChargePeriod": "MONTHLY",
+          "priceType": "ETHERWAY_RECURRING",
+          "quotePrice": "400"
+        }
+      ]
+    }
+  ]
+}

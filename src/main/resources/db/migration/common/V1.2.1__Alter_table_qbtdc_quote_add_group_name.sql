@@ -1,0 +1,1 @@
+ALTER TABLE qbtdc_quote ADD column group_name VARCHAR(3) DEFAULT NULL;

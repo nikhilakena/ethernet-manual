@@ -1,0 +1,530 @@
+<xs:schema targetNamespace="http://wag.btireland.ie/WAG_WS/"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:wag="http://wag.btireland.ie/WAG_WS/"
+           xmlns:schema="http://wag.btireland.ie/WAG_WS/"
+           elementFormDefault="qualified">
+
+    <!-- schema containing object common to all talos WS like error definition-->
+    <xs:include schemaLocation="common-types-xsd-v1.xsd"/>
+    <xs:include schemaLocation="data-circuit-common-types-xsd-v1.xsd"/>
+    <xs:include schemaLocation="PBTDCSyncResponseSchema-xsd-v1.xsd"/>
+    <xs:complexType name="PBTDCOrder">
+        <xs:sequence>
+            <xs:element name="VERSION" type="xs:string" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="ORDER" type="schema:ORDER" minOccurs="1" maxOccurs="1"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="ORDER">
+        <xs:sequence>
+            <xs:element ref="wag:HEADER" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="ORDER_DATA" minOccurs="1" maxOccurs="1">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element ref="wag:OPERATOR_DETAILS" minOccurs="1" maxOccurs="1"/>
+                        <xs:element name="ORDER_DETAILS" minOccurs="1" maxOccurs="1">
+                            <xs:complexType>
+                                <xs:sequence>
+                                    <xs:element ref="wag:ORDER_NUMBER" minOccurs="1" maxOccurs="1"/>
+
+                                    <xs:element name="TYPE" minOccurs="1" maxOccurs="1">
+                                        <xs:simpleType>
+                                            <xs:restriction base="xs:string">
+                                                <xs:enumeration value="PBTDC">
+                                                    <xs:annotation>
+                                                        <xs:documentation>Provide BT Data Circuit</xs:documentation>
+                                                    </xs:annotation>
+                                                </xs:enumeration>
+                                            </xs:restriction>
+                                        </xs:simpleType>
+                                    </xs:element>
+
+                                    <xs:element ref="wag:APPLICATION_DATE" minOccurs="1" maxOccurs="1"/>
+                                    <xs:element ref="wag:OBO" minOccurs="0" maxOccurs="1"/>
+
+                                </xs:sequence>
+                            </xs:complexType>
+                        </xs:element>
+                        <xs:element name="CUSTOMER_DETAILS" minOccurs="1" maxOccurs="1">
+                            <xs:complexType>
+                                <xs:sequence>
+                                    <xs:element name="ORGANISATION_NAME" minOccurs="1" maxOccurs="1">
+                                        <xs:simpleType>
+                                            <xs:restriction base="xs:string">
+                                                <xs:minLength value="1"/>
+                                                <xs:maxLength value="50"/>
+                                            </xs:restriction>
+                                        </xs:simpleType>
+                                    </xs:element>
+                                    <xs:element name="ACCOUNT_NUMBER" minOccurs="0" maxOccurs="1">
+                                        <xs:simpleType>
+                                            <xs:restriction base="xs:string">
+                                                <xs:maxLength value="20"/>
+                                            </xs:restriction>
+                                        </xs:simpleType>
+                                    </xs:element>
+                                    <xs:element name="LEAD_DELIVERY_MANAGER_CONTACT" minOccurs="0" maxOccurs="1">
+                                        <xs:complexType>
+                                            <xs:sequence>
+                                                <xs:element name="FIRST_NAME" minOccurs="1" maxOccurs="1">
+                                                    <xs:simpleType>
+                                                        <xs:restriction base="xs:string">
+                                                            <xs:minLength value="1"/>
+                                                            <xs:maxLength value="20"/>
+                                                        </xs:restriction>
+                                                    </xs:simpleType>
+                                                </xs:element>
+                                                <xs:element name="LAST_NAME" minOccurs="1" maxOccurs="1">
+                                                    <xs:simpleType>
+                                                        <xs:restriction base="xs:string">
+                                                            <xs:minLength value="1"/>
+                                                            <xs:maxLength value="20"/>
+                                                        </xs:restriction>
+                                                    </xs:simpleType>
+                                                </xs:element>
+                                                <xs:element name="CONTACT_NUMBER" minOccurs="1" maxOccurs="1">
+                                                    <xs:simpleType>
+                                                        <xs:restriction base="xs:string">
+                                                            <xs:minLength value="1"/>
+                                                            <xs:maxLength value="20"/>
+                                                        </xs:restriction>
+                                                    </xs:simpleType>
+                                                </xs:element>
+                                                <xs:element name="EMAIL" minOccurs="0" maxOccurs="1">
+                                                    <xs:simpleType>
+                                                        <xs:restriction base="xs:string">
+                                                            <xs:minLength value="1"/>
+                                                            <xs:maxLength value="40"/>
+                                                        </xs:restriction>
+                                                    </xs:simpleType>
+                                                </xs:element>
+                                            </xs:sequence>
+                                        </xs:complexType>
+                                    </xs:element>
+                                    <xs:element name="CUSTOMER_INTERNAL_DETAILS" minOccurs="0" maxOccurs="1">
+                                        <xs:complexType>
+                                            <xs:sequence>
+                                                <xs:element name="ATTRIBUTE" minOccurs="1" maxOccurs="5">
+                                                    <xs:complexType>
+                                                        <xs:sequence>
+                                                            <xs:element name="NAME" minOccurs="1" maxOccurs="1">
+                                                                <xs:simpleType>
+                                                                    <xs:restriction base="xs:string">
+                                                                        <xs:minLength value="1"/>
+                                                                        <xs:maxLength value="50"/>
+                                                                    </xs:restriction>
+                                                                </xs:simpleType>
+                                                            </xs:element>
+                                                            <xs:element name="VALUE" minOccurs="1" maxOccurs="1">
+                                                                <xs:simpleType>
+                                                                    <xs:restriction base="xs:string">
+                                                                        <xs:minLength value="1"/>
+                                                                        <xs:maxLength value="200"/>
+                                                                    </xs:restriction>
+                                                                </xs:simpleType>
+                                                            </xs:element>
+                                                        </xs:sequence>
+                                                    </xs:complexType>
+                                                </xs:element>
+                                            </xs:sequence>
+                                        </xs:complexType>
+                                    </xs:element>
+
+                                </xs:sequence>
+                            </xs:complexType>
+                        </xs:element>
+
+                        <xs:element name="CIRCUIT" minOccurs="1" maxOccurs="1">
+                            <xs:complexType>
+                                <xs:sequence>
+                                    <xs:element name="REF_QUOTE_ITEM_ID" minOccurs="1" maxOccurs="1">
+                                        <xs:simpleType>
+                                            <xs:restriction base="xs:string">
+                                                <xs:minLength value="1"/>
+                                                <xs:maxLength value="11"/>
+                                            </xs:restriction>
+                                        </xs:simpleType>
+                                    </xs:element>
+                                    <xs:element name="CONNECTION_TYPE" minOccurs="1" maxOccurs="1">
+                                        <xs:simpleType>
+                                            <xs:restriction base="xs:string">
+                                                <xs:enumeration value="ETHERWAY_STANDARD"/>
+                                                <xs:enumeration value="ETHERWAY_DIVERSE"/>
+                                                <xs:enumeration value="ETHERWAY_DIVERSE_PLUS"/>
+                                            </xs:restriction>
+                                        </xs:simpleType>
+                                    </xs:element>
+                                    <xs:element name="BT_GROUP_REF" minOccurs="0" maxOccurs="1">
+                                        <xs:simpleType>
+                                            <xs:restriction base="xs:string">
+                                                <xs:minLength value="1"/>
+                                                <xs:maxLength value="25"/>
+                                            </xs:restriction>
+                                        </xs:simpleType>
+                                    </xs:element>
+
+                                    <xs:element name="A_END" minOccurs="1" maxOccurs="1">
+                                        <xs:complexType>
+                                            <xs:sequence>
+                                                <xs:element name="SITE" minOccurs="1" maxOccurs="1">
+                                                    <xs:complexType>
+                                                        <xs:sequence>
+                                                            <xs:element name="SITE_CONTACT" minOccurs="1" maxOccurs="2">
+                                                                <xs:complexType>
+                                                                    <xs:sequence>
+                                                                        <xs:element name="FIRST_NAME" minOccurs="1"
+                                                                                    maxOccurs="1">
+                                                                            <xs:simpleType>
+                                                                                <xs:restriction base="xs:string">
+                                                                                    <xs:minLength value="1"/>
+                                                                                    <xs:maxLength value="20"/>
+                                                                                </xs:restriction>
+                                                                            </xs:simpleType>
+                                                                        </xs:element>
+                                                                        <xs:element name="LAST_NAME" minOccurs="1"
+                                                                                    maxOccurs="1">
+                                                                            <xs:simpleType>
+                                                                                <xs:restriction base="xs:string">
+                                                                                    <xs:minLength value="1"/>
+                                                                                    <xs:maxLength value="20"/>
+                                                                                </xs:restriction>
+                                                                            </xs:simpleType>
+                                                                        </xs:element>
+                                                                        <xs:element name="CONTACT_NUMBER" minOccurs="1"
+                                                                                    maxOccurs="1">
+                                                                            <xs:simpleType>
+                                                                                <xs:restriction base="xs:string">
+                                                                                    <xs:minLength value="1"/>
+                                                                                    <xs:maxLength value="20"/>
+                                                                                </xs:restriction>
+                                                                            </xs:simpleType>
+                                                                        </xs:element>
+                                                                        <xs:element name="EMAIL" minOccurs="1"
+                                                                                    maxOccurs="1">
+                                                                            <xs:simpleType>
+                                                                                <xs:restriction base="xs:string">
+                                                                                    <xs:minLength value="1"/>
+                                                                                    <xs:maxLength value="40"/>
+                                                                                </xs:restriction>
+                                                                            </xs:simpleType>
+                                                                        </xs:element>
+                                                                    </xs:sequence>
+                                                                </xs:complexType>
+                                                            </xs:element>
+                                                            <xs:element name="SITE_READINESS" minOccurs="0"
+                                                                        maxOccurs="1">
+                                                                <xs:complexType>
+                                                                    <xs:sequence>
+                                                                        <xs:element name="LANDLORD_CONTACT"
+                                                                                    minOccurs="0" maxOccurs="1">
+                                                                            <xs:complexType>
+                                                                                <xs:sequence>
+                                                                                    <xs:element name="FIRST_NAME"
+                                                                                                minOccurs="1"
+                                                                                                maxOccurs="1">
+                                                                                        <xs:simpleType>
+                                                                                            <xs:restriction
+                                                                                                    base="xs:string">
+                                                                                                <xs:minLength
+                                                                                                        value="1"/>
+                                                                                                <xs:maxLength
+                                                                                                        value="20"/>
+                                                                                            </xs:restriction>
+                                                                                        </xs:simpleType>
+                                                                                    </xs:element>
+                                                                                    <xs:element name="LAST_NAME"
+                                                                                                minOccurs="1"
+                                                                                                maxOccurs="1">
+                                                                                        <xs:simpleType>
+                                                                                            <xs:restriction
+                                                                                                    base="xs:string">
+                                                                                                <xs:minLength
+                                                                                                        value="1"/>
+                                                                                                <xs:maxLength
+                                                                                                        value="20"/>
+                                                                                            </xs:restriction>
+                                                                                        </xs:simpleType>
+                                                                                    </xs:element>
+                                                                                    <xs:element name="CONTACT_NUMBER"
+                                                                                                minOccurs="1"
+                                                                                                maxOccurs="1">
+                                                                                        <xs:simpleType>
+                                                                                            <xs:restriction
+                                                                                                    base="xs:string">
+                                                                                                <xs:minLength
+                                                                                                        value="1"/>
+                                                                                                <xs:maxLength
+                                                                                                        value="20"/>
+                                                                                            </xs:restriction>
+                                                                                        </xs:simpleType>
+                                                                                    </xs:element>
+                                                                                    <xs:element name="EMAIL"
+                                                                                                minOccurs="1"
+                                                                                                maxOccurs="1">
+                                                                                        <xs:simpleType>
+                                                                                            <xs:restriction
+                                                                                                    base="xs:string">
+                                                                                                <xs:minLength
+                                                                                                        value="1"/>
+                                                                                                <xs:maxLength
+                                                                                                        value="40"/>
+                                                                                            </xs:restriction>
+                                                                                        </xs:simpleType>
+                                                                                    </xs:element>
+                                                                                </xs:sequence>
+                                                                            </xs:complexType>
+                                                                        </xs:element>
+                                                                        <xs:element name="BUILDING_MGR_CONTACT"
+                                                                                    minOccurs="0" maxOccurs="1">
+                                                                            <xs:complexType>
+                                                                                <xs:sequence>
+                                                                                    <xs:element name="FIRST_NAME"
+                                                                                                minOccurs="1"
+                                                                                                maxOccurs="1">
+                                                                                        <xs:simpleType>
+                                                                                            <xs:restriction
+                                                                                                    base="xs:string">
+                                                                                                <xs:minLength
+                                                                                                        value="1"/>
+                                                                                                <xs:maxLength
+                                                                                                        value="20"/>
+                                                                                            </xs:restriction>
+                                                                                        </xs:simpleType>
+                                                                                    </xs:element>
+                                                                                    <xs:element name="LAST_NAME"
+                                                                                                minOccurs="1"
+                                                                                                maxOccurs="1">
+                                                                                        <xs:simpleType>
+                                                                                            <xs:restriction
+                                                                                                    base="xs:string">
+                                                                                                <xs:minLength
+                                                                                                        value="1"/>
+                                                                                                <xs:maxLength
+                                                                                                        value="20"/>
+                                                                                            </xs:restriction>
+                                                                                        </xs:simpleType>
+                                                                                    </xs:element>
+                                                                                    <xs:element name="CONTACT_NUMBER"
+                                                                                                minOccurs="1"
+                                                                                                maxOccurs="1">
+                                                                                        <xs:simpleType>
+                                                                                            <xs:restriction
+                                                                                                    base="xs:string">
+                                                                                                <xs:minLength
+                                                                                                        value="1"/>
+                                                                                                <xs:maxLength
+                                                                                                        value="20"/>
+                                                                                            </xs:restriction>
+                                                                                        </xs:simpleType>
+                                                                                    </xs:element>
+                                                                                    <xs:element name="EMAIL"
+                                                                                                minOccurs="1"
+                                                                                                maxOccurs="1">
+                                                                                        <xs:simpleType>
+                                                                                            <xs:restriction
+                                                                                                    base="xs:string">
+                                                                                                <xs:minLength
+                                                                                                        value="1"/>
+                                                                                                <xs:maxLength
+                                                                                                        value="40"/>
+                                                                                            </xs:restriction>
+                                                                                        </xs:simpleType>
+                                                                                    </xs:element>
+                                                                                </xs:sequence>
+                                                                            </xs:complexType>
+                                                                        </xs:element>
+                                                                        <xs:element name="METHOD_INSURANCE_CERT"
+                                                                                    minOccurs="1" maxOccurs="1">
+                                                                            <xs:simpleType>
+                                                                                <xs:restriction base="xs:string">
+                                                                                    <xs:enumeration value="Y"/>
+                                                                                    <xs:enumeration value="N"/>
+                                                                                </xs:restriction>
+                                                                            </xs:simpleType>
+                                                                        </xs:element>
+                                                                        <xs:element name="SITE_INDUCTION" minOccurs="0"
+                                                                                    maxOccurs="1">
+                                                                            <xs:simpleType>
+                                                                                <xs:restriction base="xs:string">
+                                                                                    <xs:maxLength value="150"/>
+                                                                                </xs:restriction>
+                                                                            </xs:simpleType>
+                                                                        </xs:element>
+                                                                    </xs:sequence>
+                                                                </xs:complexType>
+                                                            </xs:element>
+                                                            <xs:element name="COMMS_ROOM" minOccurs="0" maxOccurs="1">
+                                                                <xs:complexType>
+                                                                    <xs:sequence>
+                                                                        <xs:element name="DETAILS" minOccurs="1"
+                                                                                    maxOccurs="1">
+                                                                            <xs:simpleType>
+                                                                                <xs:restriction base="xs:string">
+                                                                                    <xs:minLength value="1"/>
+                                                                                    <xs:maxLength value="150"/>
+                                                                                </xs:restriction>
+                                                                            </xs:simpleType>
+                                                                        </xs:element>
+                                                                        <xs:element name="READY_FOR_DELIVERY"
+                                                                                    minOccurs="1" maxOccurs="1">
+                                                                            <xs:simpleType>
+                                                                                <xs:restriction base="xs:string">
+                                                                                    <xs:enumeration value="Y"/>
+                                                                                    <xs:enumeration value="N"/>
+                                                                                </xs:restriction>
+                                                                            </xs:simpleType>
+                                                                        </xs:element>
+                                                                        <xs:element name="POWER_SOCKET_TYPE"
+                                                                                    minOccurs="1" maxOccurs="1">
+                                                                            <xs:simpleType>
+                                                                                <xs:restriction base="xs:string">
+                                                                                    <xs:enumeration value="3-PIN"/>
+                                                                                    <xs:enumeration value="KETTLE"/>
+                                                                                </xs:restriction>
+                                                                            </xs:simpleType>
+                                                                        </xs:element>
+                                                                        <xs:element name="CABLE_MANAGER" minOccurs="1"
+                                                                                    maxOccurs="1">
+                                                                            <xs:simpleType>
+                                                                                <xs:restriction base="xs:string">
+                                                                                    <xs:enumeration value="Y"/>
+                                                                                    <xs:enumeration value="N"/>
+                                                                                </xs:restriction>
+                                                                            </xs:simpleType>
+                                                                        </xs:element>
+                                                                    </xs:sequence>
+                                                                </xs:complexType>
+                                                            </xs:element>
+                                                        </xs:sequence>
+                                                    </xs:complexType>
+                                                </xs:element>
+                                                <xs:element name="ACCESS" minOccurs="1" maxOccurs="1">
+                                                    <xs:complexType>
+                                                        <xs:sequence>
+                                                            <xs:element name="ACTION_FLAG" minOccurs="1" maxOccurs="1">
+                                                                <xs:simpleType>
+                                                                    <xs:restriction base="xs:string">
+                                                                        <xs:enumeration value="P">
+                                                                            <xs:annotation>
+                                                                                <xs:documentation>Provide
+                                                                                </xs:documentation>
+                                                                            </xs:annotation>
+                                                                        </xs:enumeration>
+                                                                        <xs:enumeration value="CH">
+                                                                            <xs:annotation>
+                                                                                <xs:documentation>Change
+                                                                                </xs:documentation>
+                                                                            </xs:annotation>
+                                                                        </xs:enumeration>
+                                                                    </xs:restriction>
+                                                                </xs:simpleType>
+                                                            </xs:element>
+                                                            <xs:element name="CIRCUIT_REFERENCE" minOccurs="0"
+                                                                        maxOccurs="1">
+                                                                <xs:simpleType>
+                                                                    <xs:restriction base="xs:string">
+                                                                        <xs:maxLength value="20"/>
+                                                                    </xs:restriction>
+                                                                </xs:simpleType>
+                                                            </xs:element>
+                                                            <xs:element name="PRESENTATION" minOccurs="0" maxOccurs="1">
+                                                                <xs:simpleType>
+                                                                    <xs:restriction base="xs:string">
+                                                                        <xs:enumeration value=""/>
+                                                                        <xs:enumeration value="LC1310"/>
+                                                                        <xs:enumeration value="LC850"/>
+                                                                        <xs:enumeration value="RJ45"/>
+                                                                        <xs:enumeration value="LC1310N"/>
+                                                                        <xs:enumeration value="LC850N"/>
+                                                                        <xs:enumeration value="RJ45N"/>
+                                                                        <xs:enumeration value="LC1310W"/>
+                                                                    </xs:restriction>
+                                                                </xs:simpleType>
+                                                            </xs:element>
+                                                        </xs:sequence>
+                                                    </xs:complexType>
+                                                </xs:element>
+                                            </xs:sequence>
+                                        </xs:complexType>
+                                    </xs:element>
+                                    <xs:element name="B_END" minOccurs="0" maxOccurs="1">
+                                        <xs:complexType>
+                                            <xs:sequence>
+                                                <xs:element name="LOCATION" minOccurs="1" maxOccurs="1">
+                                                    <xs:complexType>
+                                                        <xs:sequence>
+                                                            <xs:element name="NNI_ID" minOccurs="1" maxOccurs="1">
+                                                                <xs:simpleType>
+                                                                    <xs:restriction base="xs:string">
+                                                                        <xs:pattern value="[0-9a-zA-Z]+"/>
+                                                                        <xs:minLength value="1"/>
+                                                                        <xs:maxLength value="20"/>
+                                                                    </xs:restriction>
+                                                                </xs:simpleType>
+                                                            </xs:element>
+                                                            <xs:element name="VLAN" minOccurs="0" maxOccurs="1">
+                                                                <xs:simpleType>
+                                                                    <xs:restriction base="xs:string">
+                                                                        <xs:pattern value="[0-9]*"/>
+                                                                        <xs:maxLength value="20"/>
+                                                                    </xs:restriction>
+                                                                </xs:simpleType>
+                                                            </xs:element>
+                                                        </xs:sequence>
+                                                    </xs:complexType>
+                                                </xs:element>
+                                                <xs:element name="ACCESS" minOccurs="1" maxOccurs="1">
+                                                    <xs:complexType>
+                                                        <xs:sequence>
+                                                            <xs:element name="ACTION_FLAG" minOccurs="1" maxOccurs="1">
+                                                                <xs:simpleType>
+                                                                    <xs:restriction base="xs:string">
+                                                                        <xs:enumeration value="CH">
+                                                                            <xs:annotation>
+                                                                                <xs:documentation>Change
+                                                                                </xs:documentation>
+                                                                            </xs:annotation>
+                                                                        </xs:enumeration>
+                                                                    </xs:restriction>
+                                                                </xs:simpleType>
+                                                            </xs:element>
+                                                        </xs:sequence>
+                                                    </xs:complexType>
+                                                </xs:element>
+                                            </xs:sequence>
+                                        </xs:complexType>
+                                    </xs:element>
+                                    <xs:element name="NOTES" minOccurs="0" maxOccurs="1">
+                                        <xs:simpleType>
+                                            <xs:restriction base="xs:string">
+                                                <xs:maxLength value="150"/>
+                                            </xs:restriction>
+                                        </xs:simpleType>
+                                    </xs:element>
+                                </xs:sequence>
+                            </xs:complexType>
+                        </xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+
+    </xs:complexType>
+    <xs:complexType name="PBTDCOrderresponse">
+        <xs:sequence>
+            <xs:element name="VERSION" type="xs:string" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="ORDER_ID" minOccurs="1" maxOccurs="1">
+                <xs:simpleType>
+                    <xs:restriction base="xs:long">
+                        <!-- <xs:totalDigits value="3"/> -->
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+            <xs:element name="NOTIFICATION" type="schema:notification"/>
+        </xs:sequence>
+    </xs:complexType>
+
+
+    <xs:element name="PBTDC" type="schema:PBTDCOrder"/>
+    <xs:element name="PBTDCRESPONSE" type="schema:PBTDCOrderresponse"/>
+</xs:schema>

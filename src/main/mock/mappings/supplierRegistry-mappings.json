@@ -1,0 +1,35 @@
+{
+  "mappings": [
+    {
+      "metadata": {
+        "description": "Get suppliers list"
+      },
+      "request": {
+        "method": "GET",
+        "url": "/api/v1/supplier"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "suppliers": [
+            {
+              "supplierId": 1,
+              "supplierCode": "NBI",
+              "supplierName": "NBI",
+              "adapterEndPoint": "http://talos-nbi-adapter-test-dev-talos-supplier-test.apps.greenside-dev.dublin.btireland.ie"
+            },
+            {
+              "supplierId": 2,
+              "supplierCode": "PREQUAL",
+              "supplierName": "PREQUAL",
+              "adapterEndPoint": "http://talos-prequal-adapter-test-dev-talos-prequal-test.apps.greenside-dev.dublin.btireland.ie"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

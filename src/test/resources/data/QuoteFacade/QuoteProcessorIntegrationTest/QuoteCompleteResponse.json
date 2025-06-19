@@ -1,0 +1,95 @@
+{
+        "quoteGroupId": 1,
+        "notificationType": "COMPLETE",
+        "quoteDate": "2023-03-15T10:33:46",
+        "projectIdentifier": "projectkey",
+        "serviceClass" : "WIC",
+        "connectionType" : "ETHERWAY_STANDARD",
+        "quotes": [
+                {
+                        "quoteId": 1,
+                        "quoteState": "QUOTED",
+                        "relatedParties": [
+                                {
+                                        "name": "sky",
+                                        "role": "BUYER"
+                                }
+                        ],
+                        "quotePrice": [
+                                {
+                                        "recurringChargePeriod": "MONTHLY",
+                                        "priceType": "RECURRING",
+                                        "quotePrice": "18946"
+                                },
+                                {
+                                        "recurringChargePeriod": null,
+                                        "priceType": "NON_RECURRING",
+                                        "quotePrice": "1050"
+                                }
+                        ],
+                        "quoteItems": [
+                                {
+                                        "name": "A_END",
+                                        "quoteItemTerm": 5,
+                                        "quoteProduct": {
+                                                "quoteProductPlace": {
+                                                        "eircode": "D17XD78",
+                                                        "handoverNode": null,
+                                                        "fullAddress": "HUGH JORDAN & CO. LIMITED, UNIT 4, CONSTELLATION ROAD, AIRWAYS INDUSTRIAL ESTATE, DUBLIN 17",
+                                                        "multiEircode": "N"
+                                                },
+                                                "quoteProductConfig": {
+                                                        "bandwidth": 10,
+                                                        "profile": "PRIMARY",
+                                                        "action": "PROVIDE",
+                                                        "accessSupplier": "OFF_NET",
+                                                        "targetAccessSupplier": "OFF_NET",
+                                                        "sla": "STANDARD",
+                                                        "networkStatus": "OFF_NET"
+                                                }
+                                        }
+                                },
+                                {
+                                        "name": "B_END",
+                                        "quoteItemTerm": 5,
+                                        "quoteProduct": {
+                                                "quoteProductPlace": {
+                                                        "eircode": null,
+                                                        "handoverNode": "INTERNET",
+                                                        "fullAddress": null,
+                                                        "multiEircode": null
+                                                },
+                                                "quoteProductConfig": {
+                                                        "bandwidth": 10,
+                                                        "profile": "PRIMARY",
+                                                        "action": "MODIFY",
+                                                        "accessSupplier": "OFF_NET",
+                                                        "targetAccessSupplier": null,
+                                                        "sla": "STANDARD",
+                                                        "networkStatus": null
+                                                }
+                                        }
+                                },
+                                {
+                                        "name": "LOGICAL",
+                                        "quoteItemTerm": 5,
+                                        "quoteProduct": {
+                                                "quoteProductPlace": null,
+                                                "quoteProductConfig": {
+                                                        "bandwidth": 10000,
+                                                        "ipRange": 31,
+                                                        "profile": "PRIMARY",
+                                                        "action": "PROVIDE",
+                                                        "accessSupplier": "OFF_NET",
+                                                        "targetAccessSupplier": null,
+                                                        "sla": "STANDARD",
+                                                        "networkStatus": null
+                                                }
+                                        }
+                                }
+                        ],
+                        "rejectionDetails": null
+                }
+        ],
+        "rejectionDetails": null
+}

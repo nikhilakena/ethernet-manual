@@ -1,0 +1,28 @@
+orders:
+  - id: 2
+    account_number: 1234567890
+    tracking_order_reference: TALOS-123-PBTDC-1
+    oao: sky
+    wag_order_id: 123
+    order_number: BT-PBTDC-123
+    created: 2021-01-08 19:15:14
+    data_contract_name: WAG
+    originator_code: EXT
+    transaction_id: 100
+    date_time_stamp: 2021-01-08 15:15:14
+    service: PBTDC
+    ref_quote_item_id: 1
+    version: 1
+
+pbtdcs:
+  - order_id: 2
+    customer_access_id: 3
+
+access:
+  - id: 3
+    created: 2021-01-08 19:15:14
+
+
+
+
+

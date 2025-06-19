@@ -1,0 +1,1 @@
+ALTER TABLE `access_install` modify column site_induction varchar(150) DEFAULT NULL ;

@@ -1,0 +1,9 @@
+qbtdc_order_map:
+  - quote_group_id: "regex:\\d+"
+    operator_code: 83758
+    operator_name: SKY
+    sync_flag: 0
+    status: CLAIMED
+
+ACT_RU_TASK:
+  - ASSIGNEE_: TestUser

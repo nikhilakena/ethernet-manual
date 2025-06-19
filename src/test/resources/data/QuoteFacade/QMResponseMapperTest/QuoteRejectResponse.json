@@ -1,0 +1,11 @@
+{
+        "quoteGroupId": 11,
+        "notificationType": "REJECT",
+        "quoteDate": "2023-03-15T10:33:46",
+        "quotes": [],
+        "rejectionDetails": {
+                "rejectCode": "3",
+                "rejectReason": "Eircode is invalid",
+                "quoteRejectedDate": "2023-03-21T12:56:54.053254948"
+        }
+}

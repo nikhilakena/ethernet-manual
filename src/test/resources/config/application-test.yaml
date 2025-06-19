@@ -1,0 +1,79 @@
+logging:
+  level:
+    ROOT: INFO
+
+
+
+spring:
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    url: jdbc:h2:mem:mydb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=MySQL;DATABASE_TO_LOWER=FALSE;NON_KEYWORDS=VALUE
+    username: root
+    password: 1234
+    driver-class-name: org.h2.Driver
+    hikari:
+      poolName: Hikari
+      auto-commit: false
+      data-source-properties:
+        cachePrepStmts: true
+        prepStmtCacheSize: 250
+        prepStmtCacheSqlLimit: 2048
+        useServerPrepStmts: true
+  flyway:
+    locations:
+      - classpath:db/migration/common
+      - classpath:db/migration/h2
+  config:
+    import: classpath:/config/talos-oao-config.yaml
+  mail:
+    host: localhost
+    port: 3025
+    properties:
+      mail.debug: true
+  artemis:
+    broker-url: vm://0
+    mode: EMBEDDED
+    embedded:
+      enabled: false
+      persistent: false
+      serverId: 0
+  sleuth:
+    enabled: false
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://localhost:8000/auth/realms/talos/protocol/openid-connect/certs
+
+camunda:
+  bpm:
+    history-level: FULL
+    database:
+      type: h2
+      schema-update: true
+
+
+pactbroker:
+  host: "pactbrokerdocker-tools.apps.greenside-dev.dublin.btireland.ie"
+  port: 80
+  scheme: http
+  tags: master
+  enablePending: true
+  providerTags: master
+
+# application:
+application:
+  queue:
+    prefix: test
+    version: v1
+  report:
+    mail-source: user.sender@bt.com
+    mail-destination: user.recipient@bt.com
+  http-client:
+    logging:
+      enabled: true
+  offline-pricing-mail:
+    mail-source: wholesalepricing@bt.com
+  artemis-ha:
+    max-transmit-retries: 100
+    retransmit-timeout: 100

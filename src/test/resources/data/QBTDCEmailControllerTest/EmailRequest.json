@@ -1,0 +1,10 @@
+{
+  "orderNumber": "BT-QBTCDC-12347",
+  "narrative": "",
+  "emailRecipients": [
+    "user1@bt.com",
+    "user2@bt.com"
+  ],
+  "sync": false,
+  "supplier" : "sky"
+}

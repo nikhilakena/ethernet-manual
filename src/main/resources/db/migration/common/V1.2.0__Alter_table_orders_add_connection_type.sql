@@ -1,0 +1,1 @@
+ALTER TABLE orders add column connection_type varchar(32) DEFAULT NULL;

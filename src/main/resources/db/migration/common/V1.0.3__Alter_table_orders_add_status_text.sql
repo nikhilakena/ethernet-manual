@@ -1,0 +1,1 @@
+ALTER TABLE orders add column status_text varchar(1500) DEFAULT NULL;

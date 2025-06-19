@@ -1,0 +1,327 @@
+# ===================================================================
+# Spring Boot configuration.
+#
+# This configuration will be overridden by the Spring profile you use,
+# for example application-dev.yml if you use the "dev" profile.
+#
+# ===================================================================
+
+# ===================================================================
+# Standard Spring Boot properties.
+# Full reference is available at:
+# http://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html
+# ===================================================================
+
+feign:
+  hystrix:
+    enabled: false
+  client:
+    config:
+      default:
+        connectTimeout: 10000
+        readTimeout: 10000
+
+logging:
+  level:
+    com.btireland.talos.quote.facade.connector.rest: DEBUG
+    com.btireland.talos.ethernet.engine.client: DEBUG
+
+# TODO secure actuator endpoints
+management:
+  endpoint:
+    health:
+      show-details: always
+  info:
+    git:
+      mode: full
+  health:
+    mail:
+      enabled: false # When using the MailService, configure an SMTP server and set this to true
+  metrics:
+    export:
+      # Prometheus is the default metrics backend
+      prometheus:
+        enabled: true
+        step: 1m
+    enable:
+      http: true
+      jvm: true
+      logback: true
+      process: true
+      system: true
+    distribution:
+      percentiles-histogram:
+        all: true
+      percentiles:
+        all: 0, 0.5, 0.75, 0.95, 0.99, 1.0
+    tags:
+      application: ${spring.application.name}
+    web:
+      server:
+        request:
+          autotime:
+            enabled: true
+
+spring:
+  application:
+    name: ethernet-engine
+  jmx:
+    enabled: false
+  data:
+    jpa:
+      repositories:
+        bootstrap-mode: deferred
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    url: jdbc:mariadb://${spring.datasource.host}:${spring.datasource.port}/${spring.datasource.database}
+    host: localhost
+    port: 3306
+    database: mydb
+    username: user
+    password: pwd
+    driver-class-name: org.mariadb.jdbc.Driver
+    hikari:
+      minimumIdle: 2
+      poolName: Hikari
+      auto-commit: false
+      data-source-properties:
+        cachePrepStmts: true
+        prepStmtCacheSize: 250
+        prepStmtCacheSqlLimit: 2048
+        useServerPrepStmts: true
+  flyway:
+    locations:
+      - classpath:db/migration/common
+      - classpath:db/migration/mariadb
+
+
+  jpa:
+    open-in-view: false
+    properties:
+      hibernate.connection.provider_disables_autocommit: true
+      hibernate.jdbc.time_zone: UTC
+      # When we are on Spring Framework 6/Boot 3, we only
+      # need the jakarta flag.
+      jakarta.persistence.query.timeout: 8000
+      javax.persistence.query.timeout: 8000
+    hibernate:
+      ddl-auto: validate
+  mail:
+    host: localhost
+    port: 25
+    username:
+    password:
+    properties:
+      mail.debug: false
+      mail.smtp.connectiontimeout: 5000
+      mail.smtp.timeout: 3000
+      mail.smtp.writetimeout: 5000
+  messages:
+    basename: i18n/messages
+  artemis:
+    embedded:
+      enabled: false
+  main:
+    allow-bean-definition-overriding: true
+  task:
+    execution:
+      thread-name-prefix: myapplication-task-
+      pool:
+        core-size: 2
+        max-size: 50
+        queue-capacity: 10000
+    scheduling:
+      thread-name-prefix: myapplication-scheduling-
+      pool:
+        size: 2
+  jersey:
+    application-path: /camunda/engine-rest
+  lifecycle:
+    timeout-per-shutdown-phase: 30s
+  sleuth:
+    baggage:
+      remoteFields:
+        - ${application.talos.correlation.header}
+        - X-b3-flags
+        - X-ot-span-context
+        - X-request-id
+      tagFields:
+        - ${application.talos.correlation.header}
+logbook:
+  include:
+    - /api/**
+    - /actuator/**
+  exclude:
+    - /actuator/health
+    - /api/admin/**
+  obfuscate:
+    headers:
+      - Authorization
+      - X-Secret
+    parameters:
+      - access_token
+      - password
+  filter:
+    form-request-mode: off
+
+server:
+  shutdown: graceful
+  port: 8080
+  servlet:
+    context-path: /
+    session:
+      cookie:
+        http-only: true
+  error:
+    include-binding-errors: always
+    include-exception: false
+    include-message: always
+    include-stacktrace: never
+
+# Properties to be exposed on the /info management endpoint
+info:
+  # Comma separated list of profiles that will trigger the ribbon to show
+  display-ribbon-on-profiles: 'dev'
+
+springdoc:
+  packagesToScan: com.btireland.talos.ethernet.engine.rest
+  api-version: 1.0
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+# ===================================================================
+# Application specific properties
+# Add your own application properties here, see the ApplicationProperties class
+# to have type-safe configuration
+# ===================================================================
+
+# application:
+application:
+  patterns:
+    order-number-pattern: ^(?=.*[A-Za-z0-9])[\w_-]+$
+    eircode-pattern: ^([AC-FHKNPRTV-Y]{1}[0-9]{2}|D6W)[0-9AC-FHKNPRTV-Y]{4}$
+    teleno-pattern: (?=^0|^88|^5551|^7771)^\d{2,4}-\d{5,8}$
+    account-number-pattern: ^\d{10}$
+    obo-pattern: \b[\w-]{1,32}\b
+    project-key-pattern: ^[\w-]+$
+  talos:
+    ordermanager:
+      protocol: http
+      hostname: localhost
+      port: 9980
+      url: ${application.talos.ordermanager.protocol}://${application.talos.ordermanager.hostname}:${application.talos.ordermanager.port}
+    notcom:
+      protocol: http
+      hostname: localhost
+      port: 9980
+      url: ${application.talos.notcom.protocol}://${application.talos.notcom.hostname}:${application.talos.notcom.port}
+    quotemanager:
+      protocol: http
+      hostname: localhost
+      port: 9980
+      url: ${application.talos.quotemanager.protocol}://${application.talos.quotemanager.hostname}:${application.talos.quotemanager.port}
+    seal:
+      protocol: http
+      hostname: localhost
+      port: 9980
+      url: ${application.talos.seal.protocol}://${application.talos.seal.hostname}:${application.talos.seal.port}
+    pricingengine:
+      protocol: http
+      hostname: localhost
+      port: 9980
+      url: ${application.talos.pricingengine.protocol}://${application.talos.pricingengine.hostname}:${application.talos.pricingengine.port}
+    correlation:
+      header: x_talos_correlation_id
+  queue:
+    supplier:
+     notif:
+      topic: ${application.queue.prefix}.supplier.notif.topic.${application.queue.version}::${application.queue.prefix}.ethernet-engine.supplier.notif.topic.${application.queue.version}
+    cerberus:
+      data-sync: ${application.queue.prefix}.cerberus.data-sync.queue
+  notification-to-process:
+    - source: SIEBEL
+      types:
+        - A
+        - D
+        - U
+        - DE
+        - DS
+        - N
+        - S
+        - APTR
+        - CF
+        - CI
+        - C
+        - OMD
+        - GIU
+  handover-map:
+    BALLYCOOLIN: Ballycoolin - Unit B10 Ballycoolin
+    BALLYMOUNT: Ballymount - Unit 4 Ballymount
+    BLANCHARDSTOWN_BP: Blanchardstown Business Park
+    BT_CITYWEST: BT Citywest - Unit 4029 Citywest
+    INTERNET: Internet
+    CIX: CloudCIX - Hollyhill Cork
+    CORK_AIRPORT_BP: Cork Airport Business Park
+    DUBT03_HARCOURT: DUBT03 7/8 Harcourt St
+    DUBX01_HARCOURT: DUBX01 Harcourt Centre
+    EASTPOINT: Eastpoint - Colt DC Unit 15/16 Docklands
+    EQUINIX_DB1: Equinix DB1 - Unit 4027 Citywest
+    EQUINIX_DB2: Equinix DB2 - Kilcarbery
+    EQUINIX_DB3: Equinix DB3 - Unit 2 Ballycoolin
+    EQUINIX_DB4: Equinix DB4 - Unit 4 Ballycoolin
+    ERNE_ST: Erne Street - Verizon Hanover Court
+    INTERXION_DUB1: Interxion DUB1 - Unit 35 Parkwest
+    INTERXION_DUB2: Interxion DUB2 - Unit 24 Parkwest
+    INTERXION_DUB3: Interxion DUB3 - Grange Castle
+    KEPPEL_DC: Keppel - Unit 4033 Citywest
+    RIVERHOUSE: Riverhouse - East Wall Rd
+    SERVECENTRIC: Servecentric - Unit 9 Blanchardstown
+    THREE_CLONSHAUGH: Clonshaugh - West Unit Willsborough Ind Est
+    VERIZON_CLONSHAUGH: Clonshaugh - Unit 1a Willsborough Ind Est
+    VODA_CLONSHAUGH: Clonshaugh - Vodafone DC
+    VODA_CIX: CIX DC - Churchfield Cork (Vodafone)
+    VODA_RAHEEN: Raheen Business Park (Vodafone)
+    VODA_MONIVEA: Monivea Road Galway (Vodafone)
+  report:
+    active-time-period: 7
+    availability-date-range: 31
+    mail-source: user.sender
+    mail-destination: user.recipient
+  offline-pricing-mail:
+      mail-source:
+  oao-with-obo:
+    - btpricing
+    - lmx
+  oao-with-privileges:
+    - btpricing
+  wic-handover:
+    - INTERNET
+    - CITYWEST
+  http-client:
+    logging:
+      enabled: false
+      excludedHeaders:
+        - Authorization
+  quote:
+    expiry-days: 90
+  bpmn:
+    no-retry-exceptions:
+      - com.btireland.talos.core.common.rest.exception.TalosClientException
+  feature-flags:
+    quote-facade-enabled: false
+
+camunda:
+  bpm:
+    database:
+      schema-update: false
+      jdbc-batch-processing: false
+    filter:
+      create: "All tasks"
+      history-level: default
+    admin-user:
+      id: camunda
+      password: camunda
+      first-name: Camunda
+      last-name: M
+

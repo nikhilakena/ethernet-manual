@@ -1,0 +1,18 @@
+#!/bin/sh
+
+# Script starting a wiremock server using mappings in src/main/resources/mock directory
+#
+# Required ENV vars:
+# JAVA_HOME - location of a JDK home dir
+
+SCRIPT_DIR=$(dirname $0)
+cd $SCRIPT_DIR
+
+MOCK_PORT=9980
+MOCK_ROOT_DIR=$SCRIPT_DIR/src/main/mock
+
+./mvnw dependency:copy-dependencies -DincludeGroupIds=com.github.tomakehurst -DincludeArtifactIds=wiremock-standalone
+
+WIREMOCK_JAR=`ls target/dependency/wiremock*`
+
+java -jar $WIREMOCK_JAR --port=$MOCK_PORT --root-dir=$MOCK_ROOT_DIR

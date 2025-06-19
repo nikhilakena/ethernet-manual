@@ -1,0 +1,48 @@
+<xs:schema targetNamespace="http://wag.btireland.ie/WAG_WS/"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:schema="http://talos.btireland.com/ws/schemas/v1"
+           elementFormDefault="qualified">
+    <!-- schema containing object common to all talos WS like error definition-->
+
+    <xs:element name="OPERATOR_DETAILS" >
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="NAME" minOccurs="1" maxOccurs="1">
+                    <xs:simpleType>
+                        <xs:restriction base="xs:string">
+                            <xs:minLength value="1"/>
+                            <xs:maxLength value="32"/>
+                        </xs:restriction>
+                    </xs:simpleType>
+                </xs:element>
+                <xs:element name="CODE" minOccurs="1" maxOccurs="1">
+                    <xs:simpleType>
+                        <xs:restriction base="xs:string">
+                            <xs:minLength value="1"/>
+                            <xs:maxLength value="5"/>
+                        </xs:restriction>
+                    </xs:simpleType>
+                </xs:element>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="APPLICATION_DATE">
+        <xs:simpleType>
+            <xs:restriction base="xs:string">
+                <xs:pattern value="(0[1-9]|[12][0-9]|3[01])[/](0[1-9]|1[012])[/]\d{4}"/>
+                <xs:minLength value="10"/>
+                <xs:maxLength value="10"/>
+            </xs:restriction>
+        </xs:simpleType>
+    </xs:element>
+
+    <xs:element name="OBO">
+        <xs:simpleType>
+            <xs:restriction base="xs:string">
+                <xs:maxLength value="32"/>
+            </xs:restriction>
+        </xs:simpleType>
+    </xs:element>
+
+</xs:schema>

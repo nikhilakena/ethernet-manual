@@ -1,0 +1,1 @@
+ALTER TABLE orders ADD column bt_group_ref VARCHAR(32) DEFAULT NULL;

@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+</head>
+<body>
+<div style="color:#6600cc; font-weight:bold; font-family: Arial; font-size:16px; padding-left: 5px; padding-top: 15px; padding-bottom: 15px;">Order Details</div>
+<table>
+    <tr><td style="background: #5514B4; color: white; font-weight: bold; font-family: Arial; padding: 6px; border: 1px solid #ccc; text-align: left; min-width:200px;">Customer</td><td style="background: #e3dfde; color: black; font-weight: normal; font-family: Arial; padding: 6px; border: 1px solid #ccc; text-align: left; min-width:200px;" th:text="${order.oao}"></td></tr>
+    <tr><td style="background: #5514B4; color: white; font-weight: bold; font-family: Arial; padding: 6px; border: 1px solid #ccc; text-align: left; min-width:200px;">Agent</td><td style="background: #e3dfde; color: black; font-weight: normal; font-family: Arial; padding: 6px; border: 1px solid #ccc; text-align: left; min-width:200px;" th:text="${order.agent}"></td></tr>
+    <tr><td style="background: #5514B4; color: white; font-weight: bold; font-family: Arial; padding: 6px; border: 1px solid #ccc; text-align: left; min-width:200px;">Email</td><td style="background: #e3dfde; color: black; font-weight: normal; font-family: Arial; padding: 6px; border: 1px solid #ccc; text-align: left; min-width:200px;" th:text="${order.agentEmail}"></td></tr>
+    <tr><td style="background: #5514B4; color: white; font-weight: bold; font-family: Arial; padding: 6px; border: 1px solid #ccc; text-align: left; min-width:200px;">BT Quote Reference</td><td style="background: #e3dfde; color: black; font-weight: normal; font-family: Arial; padding: 6px; border: 1px solid #ccc; text-align: left; min-width:200px;" th:text="${order.pbtdc.quote?.orderNumber} + '/' + ${order.pbtdc.quote?.quoteItemId}"></td></tr>
+    <tr><td style="background: #5514B4; color: white; font-weight: bold; font-family: Arial; padding: 6px; border: 1px solid #ccc; text-align: left; min-width:200px;">BT Order Reference</td><td style="background: #e3dfde; color: black; font-weight: normal; font-family: Arial; padding: 6px; border: 1px solid #ccc; text-align: left; min-width:200px;" th:text="${order.orderNumber}"></td></tr>
+    <tr th:if="${order.btGroupRef}"><td style="background: #5514B4; color: white; font-weight: bold; font-family: Arial; padding: 6px; border: 1px solid #ccc; text-align: left; min-width:200px;">BT Group Ref</td><td style="background: #e3dfde; color: black; font-weight: normal; font-family: Arial; padding: 6px; border: 1px solid #ccc; text-align: left; min-width:200px;" th:text="${order.btGroupRef}"></td></tr>
+    <tr><td style="background: #5514B4; color: white; font-weight: bold; font-family: Arial; padding: 6px; border: 1px solid #ccc; text-align: left; min-width:200px;">COFE Order Id</td><td style="background: #e3dfde; color: black; font-weight: normal; font-family: Arial; padding: 6px; border: 1px solid #ccc; text-align: left; min-width:200px;" th:text="${order.internalTrackingOrderReference}"></td></tr>
+    <tr><td style="background: #5514B4; color: white; font-weight: bold; font-family: Arial; padding: 6px; border: 1px solid #ccc; text-align: left; min-width:200px;">Customer Reference</td><td style="background: #e3dfde; color: black; font-weight: normal; font-family: Arial; padding: 6px; border: 1px solid #ccc; text-align: left; min-width:200px;" th:text="${order.pbtdc.quote?.projectKey}"></td></tr>
+</table>
+<hr>
+<div style="color:#6600cc; font-weight:bold; font-family: Arial; font-size:16px; padding-left: 5px; padding-top: 15px; padding-bottom: 15px;">Circuit Details</div>
+<table>
+    <tr>
+        <td rowspan="2" style="background: #5514B4; color: white; font-weight: bold; font-family: Arial; padding: 6px; border: 1px solid #ccc; text-align: left; min-width:200px;">Product</td>
+        <td rowspan="2" style="background: #5514B4; color: white; font-weight: bold; font-family: Arial; padding: 6px; border: 1px solid #ccc; text-align: left; min-width:200px;">Connection Type</td>
+        <td colspan="4" style="background: #5514B4; color: white; font-weight: bold; font-family: Arial; padding: 6px; border: 1px solid #ccc; text-align: left; min-width:200px;">A-End (End Customer)</td>
+        <td colspan="3" th:if="${order.serviceClass != 'WIC'}" style="background: #5514B4; color: white; font-weight: bold; font-family: Arial; padding: 6px; border: 1px solid #ccc; text-align: left; min-width:200px;">B-End (PoP)</td>
+        <td colspan="1" th:unless="${order.serviceClass != 'WIC'}" style="background: #5514B4; color: white; font-weight: bold; font-family: Arial; padding: 6px; border: 1px solid #ccc; text-align: left; min-width:200px;">B-End (PoP)</td>
+        <td style="background: #5514B4; color: white; font-weight: bold; font-family: Arial; padding: 6px; border: 1px solid #ccc; text-align: left; min-width:200px;">Logical</td>
+        <td colspan="2" style="background: #5514B4; color: white; font-weight: bold; font-family: Arial; padding: 6px; border: 1px solid #ccc; text-align: left; min-width:200px;">Price</td>
+    </tr>
+    <tr style="background: #929194; color: white; font-weight: bold; font-family: Arial; padding: 6px; border: 1px solid #ccc; text-align: left;">
+        <td>Eircode</td>
+        <td>Access</td>
+        <td>Delivery</td>
+        <td>Presentation</td>
+        <td>Handover</td>
+        <td th:if="${order.serviceClass != 'WIC'}">NNI ID</td>
+        <td th:if="${order.serviceClass != 'WIC'}">VLAN</td>
+        <td>Access</td>
+        <td>NRC</td>
+        <td>RC</td>
+    </tr>
+    <tr style="background: #e3dfde; color: black; font-weight: normal; font-family: Arial; padding: 6px; border: 1px solid #ccc; text-align: left;">
+        <td rowspan="3"><div><span th:text="${order.serviceClass}"></span><span th:if="${order.pbtdc.quote?.ipRange != null} " th:text="' /' + ${order.pbtdc.quote?.ipRange}"></span></div><div><span th:text="${order.pbtdc.quote?.term}"></span><span th:if="${order.pbtdc.quote?.term} > 1"> Years</span><span th:unless="${order.pbtdc.quote?.term} > 1"> Year</span></div></td>
+        <td rowspan="3" th:text="${order.connectionType}"></td>
+        <td th:text="${order.pbtdc.customerAccess?.site?.location?.id}"></td>
+        <td><span th:text="${order.pbtdc.customerAccess.bandWidth}"></span><span th:if="${order.pbtdc.customerAccess.bandWidth != 'Existing'}"> Gb</span><div th:if="${order.pbtdc.customerAccess.bandWidth != 'Existing'}" th:text="${order.pbtdc.customerAccess.sla}"></div></td>
+        <td th:text="${order.pbtdc.quote?.aendTargetAccessSupplier}"></td>
+        <td th:text="${order.pbtdc.customerAccess.terminatingEquipment?.presentation}"></td>
+        <td rowspan="3" th:text="${order.pbtdc.wholesalerAccess?.site?.location?.id}"></td>
+        <td rowspan="3" th:if="${order.serviceClass != 'WIC'}" th:text="${order.pbtdc.wholesalerAccess?.circuitReference}"></td>
+        <td rowspan="3" th:if="${order.serviceClass != 'WIC'}" th:text="${order.pbtdc.logicalLink?.vlan}"></td>
+        <td rowspan="3"><span th:text="${order.pbtdc.logicalLink?.bandWidth}"></span><span> Mb</span><div th:text="${order.pbtdc.logicalLink?.profile}"></div></td>
+        <td rowspan="3"><span>&euro; </span><span th:text="${order.pbtdc.quote?.nonRecurringPrice}"></span></td>
+        <td rowspan="3"><span>&euro; </span><span th:text="${order.pbtdc.quote?.recurringPrice}"></span><div th:text="${order.pbtdc.quote?.recurringFrequency}"></div></td>
+    </tr>
+    <tr style="background: #e3dfde; color: black; font-weight: normal; font-family: Arial; padding: 6px; border: 1px solid #ccc; text-align: left;">
+        <td colspan="4" th:text="${order.pbtdc.customerAccess?.site?.location?.address?.fullAddress}"></td>
+    </tr>
+</table>
+
+<hr>
+<div style="color:#6600cc; font-weight:bold; font-family: Arial; font-size:16px; padding-left: 5px; padding-top: 15px; padding-bottom: 15px;">Customer Details</div>
+<table>
+    <tr><td style="background: #5514B4; color: white; font-weight: bold; font-family: Arial; padding: 6px; border: 1px solid #ccc; text-align: left; min-width:200px;">Organisation Name</td><td style="background: #e3dfde; color: black; font-weight: normal; font-family: Arial; padding: 6px; border: 1px solid #ccc; text-align: left; min-width:200px;" th:text="${order.organisationName}"></td></tr>
+</table>
+
+<hr>
+<div style="color:#6600cc; font-weight:bold; font-family: Arial; font-size:16px; padding-left: 5px; padding-top: 15px; padding-bottom: 15px;">Site Details</div>
+<div style="font-weight:bold; font-family: Arial; font-size:16px; padding-left: 5px; padding-top: 15px; padding-bottom: 15px;">First Site Contact Details</div>
+<table>
+    <tr><td style="background: #5514B4; color: white; font-weight: bold; font-family: Arial; padding: 6px; border: 1px solid #ccc; text-align: left; min-width:200px;">First Name</td><td style="background: #e3dfde; color: black; font-weight: normal; font-family: Arial; padding: 6px; border: 1px solid #ccc; text-align: left; min-width:200px;" th:text="${order.pbtdc.customerAccess.accessInstall?.getMainContact()?.firstName}"></td></tr>
+    <tr><td style="background: #5514B4; color: white; font-weight: bold; font-family: Arial; padding: 6px; border: 1px solid #ccc; text-align: left; min-width:200px;">Last Name</td><td style="background: #e3dfde; color: black; font-weight: normal; font-family: Arial; padding: 6px; border: 1px solid #ccc; text-align: left; min-width:200px;" th:text="${order.pbtdc.customerAccess.accessInstall?.getMainContact()?.lastName}"></td></tr>
+    <tr><td style="background: #5514B4; color: white; font-weight: bold; font-family: Arial; padding: 6px; border: 1px solid #ccc; text-align: left; min-width:200px;">Contact Number</td><td style="background: #e3dfde; color: black; font-weight: normal; font-family: Arial; padding: 6px; border: 1px solid #ccc; text-align: left; min-width:200px;" th:text="${order.pbtdc.customerAccess.accessInstall?.getMainContact()?.number}"></td></tr>
+    <tr><td style="background: #5514B4; color: white; font-weight: bold; font-family: Arial; padding: 6px; border: 1px solid #ccc; text-align: left; min-width:200px;">Email</td><td style="background: #e3dfde; color: black; font-weight: normal; font-family: Arial; padding: 6px; border: 1px solid #ccc; text-align: left; min-width:200px;" th:text="${order.pbtdc.customerAccess.accessInstall?.getMainContact()?.email}"></td></tr>
+</table>
+<div style="font-weight:bold; font-family: Arial; font-size:16px;" th:if="${order.pbtdc.customerAccess.accessInstall.getSecondaryContact() != null}">Second Site Contact Details</div>
+<table th:if="${order.pbtdc.customerAccess.accessInstall.getSecondaryContact() != null}">
+    <tr><td style="background: #5514B4; color: white; font-weight: bold; font-family: Arial; padding: 6px; border: 1px solid #ccc; text-align: left; min-width:200px;">First Name</td><td style="background: #e3dfde; color: black; font-weight: normal; font-family: Arial; padding: 6px; border: 1px solid #ccc; text-align: left; min-width:200px;" th:text="${order.pbtdc.customerAccess.accessInstall?.getSecondaryContact()?.firstName}"></td></tr>
+    <tr><td style="background: #5514B4; color: white; font-weight: bold; font-family: Arial; padding: 6px; border: 1px solid #ccc; text-align: left; min-width:200px;">Last Name</td><td style="background: #e3dfde; color: black; font-weight: normal; font-family: Arial; padding: 6px; border: 1px solid #ccc; text-align: left; min-width:200px;" th:text="${order.pbtdc.customerAccess.accessInstall?.getSecondaryContact()?.lastName}"></td></tr>
+    <tr><td style="background: #5514B4; color: white; font-weight: bold; font-family: Arial; padding: 6px; border: 1px solid #ccc; text-align: left; min-width:200px;">Contact Number</td><td style="background: #e3dfde; color: black; font-weight: normal; font-family: Arial; padding: 6px; border: 1px solid #ccc; text-align: left; min-width:200px;" th:text="${order.pbtdc.customerAccess.accessInstall?.getSecondaryContact()?.number}"></td></tr>
+    <tr><td style="background: #5514B4; color: white; font-weight: bold; font-family: Arial; padding: 6px; border: 1px solid #ccc; text-align: left; min-width:200px;">Email</td><td style="background: #e3dfde; color: black; font-weight: normal; font-family: Arial; padding: 6px; border: 1px solid #ccc; text-align: left; min-width:200px;" th:text="${order.pbtdc.customerAccess.accessInstall?.getSecondaryContact()?.email}"></td></tr>
+</table>
+
+<hr>
+<div style="color:#6600cc; font-weight:bold; font-family: Arial; font-size:16px; padding-left: 5px; padding-top: 15px; padding-bottom: 15px;">Site Readiness</div>
+<table>
+    <tr><td style="background: #5514B4; color: white; font-weight: bold; font-family: Arial; padding: 6px; border: 1px solid #ccc; text-align: left; min-width:200px;">Is a method statement or insurance certificate required?</td>
+        <td style="background: #e3dfde; color: black; font-weight: normal; font-family: Arial; padding: 6px; border: 1px solid #ccc; text-align: left; min-width:200px;"><span th:if="${order.pbtdc.customerAccess.accessInstall?.siteMethodInsuranceCert == true}">Yes</span><span th:unless="${order.pbtdc.customerAccess.accessInstall?.siteMethodInsuranceCert == true}">No</span></td>
+    </tr>
+    <tr><td style="background: #5514B4; color: white; font-weight: bold; font-family: Arial; padding: 6px; border: 1px solid #ccc; text-align: left; min-width:200px;">Are attending technicians required to complete any site induction?</td>
+        <td style="background: #e3dfde; color: black; font-weight: normal; font-family: Arial; padding: 6px; border: 1px solid #ccc; text-align: left; min-width:200px;"><span th:if="${order.pbtdc.customerAccess.accessInstall?.siteInduction != null}">Yes</span><span th:unless="${order.pbtdc.customerAccess.accessInstall?.siteInduction != null}">No</span></td>
+    </tr>
+    <tr th:if="${order.pbtdc.customerAccess.accessInstall?.siteInduction != null}">
+        <td style="background: #5514B4; color: white; font-weight: bold; font-family: Arial; padding: 6px; border: 1px solid #ccc; text-align: left; min-width:200px;">Site Induction Info</td>
+        <td style="background: #e3dfde; color: black; font-weight: normal; font-family: Arial; padding: 6px; border: 1px solid #ccc; text-align: left; min-width:200px;" th:text="${order.pbtdc.customerAccess.accessInstall?.siteInduction}"></td>
+    </tr>
+</table>
+
+<div style="font-weight:bold; font-family: Arial; font-size:16px; padding-left: 5px; padding-top: 15px; padding-bottom: 15px;">Landlord Details</div>
+<table>
+    <tr><td style="background: #5514B4; color: white; font-weight: bold; font-family: Arial; padding: 6px; border: 1px solid #ccc; text-align: left; min-width:200px;">Is site leased from a landlord?</td>
+        <td style="background: #e3dfde; color: black; font-weight: normal; font-family: Arial; padding: 6px; border: 1px solid #ccc; text-align: left; min-width:200px;"><span th:if="${landlordContact != null}">Yes</span><span th:unless="${landlordContact != null}">No</span></td>
+    </tr>
+    <tr th:if="${landlordContact != null}">
+        <td style="background: #5514B4; color: white; font-weight: bold; font-family: Arial; padding: 6px; border: 1px solid #ccc; text-align: left; min-width:200px;">First Name</td>
+        <td style="background: #e3dfde; color: black; font-weight: normal; font-family: Arial; padding: 6px; border: 1px solid #ccc; text-align: left; min-width:200px;" th:text="${landlordContact.firstName}"></td>
+    </tr>
+    <tr th:if="${landlordContact != null}">
+        <td style="background: #5514B4; color: white; font-weight: bold; font-family: Arial; padding: 6px; border: 1px solid #ccc; text-align: left; min-width:200px;">Last Name</td>
+        <td style="background: #e3dfde; color: black; font-weight: normal; font-family: Arial; padding: 6px; border: 1px solid #ccc; text-align: left; min-width:200px;" th:text="${landlordContact.lastName}"></td>
+    </tr>
+    <tr th:if="${landlordContact != null}">
+        <td style="background: #5514B4; color: white; font-weight: bold; font-family: Arial; padding: 6px; border: 1px solid #ccc; text-align: left; min-width:200px;">Contact Number</td>
+        <td style="background: #e3dfde; color: black; font-weight: normal; font-family: Arial; padding: 6px; border: 1px solid #ccc; text-align: left; min-width:200px;" th:text="${landlordContact.number}"></td>
+    </tr>
+    <tr th:if="${landlordContact != null}">
+        <td style="background: #5514B4; color: white; font-weight: bold; font-family: Arial; padding: 6px; border: 1px solid #ccc; text-align: left; min-width:200px;">Email</td>
+        <td style="background: #e3dfde; color: black; font-weight: normal; font-family: Arial; padding: 6px; border: 1px solid #ccc; text-align: left; min-width:200px;" th:text="${landlordContact.email}"></td>
+    </tr>
+</table>
+
+<div style="font-weight:bold; font-family: Arial; font-size:16px; padding-left: 5px; padding-top: 15px; padding-bottom: 15px;">Building Manager Details</div>
+<table>
+    <tr><td style="background: #5514B4; color: white; font-weight: bold; font-family: Arial; padding: 6px; border: 1px solid #ccc; text-align: left; min-width:200px;">Is the building multi-tenant?</td>
+        <td style="background: #e3dfde; color: black; font-weight: normal; font-family: Arial; padding: 6px; border: 1px solid #ccc; text-align: left; min-width:200px;"><span th:if="${buildingManagerContact != null}">Yes</span><span th:unless="${buildingManagerContact != null}">No</span></td>
+    </tr>
+    <tr th:if="${buildingManagerContact != null}">
+        <td style="background: #5514B4; color: white; font-weight: bold; font-family: Arial; padding: 6px; border: 1px solid #ccc; text-align: left; min-width:200px;">First Name</td>
+        <td style="background: #e3dfde; color: black; font-weight: normal; font-family: Arial; padding: 6px; border: 1px solid #ccc; text-align: left; min-width:200px;" th:text="${buildingManagerContact.firstName}"></td>
+    </tr>
+    <tr th:if="${buildingManagerContact != null}">
+        <td style="background: #5514B4; color: white; font-weight: bold; font-family: Arial; padding: 6px; border: 1px solid #ccc; text-align: left; min-width:200px;">Last Name</td>
+        <td style="background: #e3dfde; color: black; font-weight: normal; font-family: Arial; padding: 6px; border: 1px solid #ccc; text-align: left; min-width:200px;" th:text="${buildingManagerContact.lastName}"></td>
+    </tr>
+    <tr th:if="${buildingManagerContact != null}">
+        <td style="background: #5514B4; color: white; font-weight: bold; font-family: Arial; padding: 6px; border: 1px solid #ccc; text-align: left; min-width:200px;">Contact Number</td>
+        <td style="background: #e3dfde; color: black; font-weight: normal; font-family: Arial; padding: 6px; border: 1px solid #ccc; text-align: left; min-width:200px;" th:text="${buildingManagerContact.number}"></td>
+    </tr>
+    <tr th:if="${buildingManagerContact != null}">
+        <td style="background: #5514B4; color: white; font-weight: bold; font-family: Arial; padding: 6px; border: 1px solid #ccc; text-align: left; min-width:200px;">Email</td>
+        <td style="background: #e3dfde; color: black; font-weight: normal; font-family: Arial; padding: 6px; border: 1px solid #ccc; text-align: left; min-width:200px;" th:text="${buildingManagerContact.email}"></td>
+    </tr>
+</table>
+
+<hr>
+<div style="color:#6600cc; font-weight:bold; font-family: Arial; font-size:16px; padding-left: 5px; padding-top: 15px; padding-bottom: 15px;">Comms Room</div>
+<table>
+    <tr><td style="background: #5514B4; color: white; font-weight: bold; font-family: Arial; padding: 6px; border: 1px solid #ccc; text-align: left; min-width:200px;">Comms Room Details</td><td style="background: #e3dfde; color: black; font-weight: normal; font-family: Arial; padding: 6px; border: 1px solid #ccc; text-align: left; min-width:200px;" th:text="${order.pbtdc.customerAccess.site?.commsRoom?.details}"></td></tr>
+    <tr><td style="background: #5514B4; color: white; font-weight: bold; font-family: Arial; padding: 6px; border: 1px solid #ccc; text-align: left; min-width:200px;">Is the Comms Room ready for delivery?</td>
+        <td style="background: #e3dfde; color: black; font-weight: normal; font-family: Arial; padding: 6px; border: 1px solid #ccc; text-align: left; min-width:200px;"><span th:if="${order.pbtdc.customerAccess.accessInstall?.commsRoomReadyForDelivery == true}">Yes</span><span th:unless="${order.pbtdc.customerAccess.accessInstall.commsRoomReadyForDelivery == true}">No</span></td>
+    </tr>
+    <tr><td style="background: #5514B4; color: white; font-weight: bold; font-family: Arial; padding: 6px; border: 1px solid #ccc; text-align: left; min-width:200px;">Power Socket Type</td><td style="background: #e3dfde; color: black; font-weight: normal; font-family: Arial; padding: 6px; border: 1px solid #ccc; text-align: left; min-width:200px;" th:text="${order.pbtdc.customerAccess.site?.commsRoom?.powerSocketType?.getSocketTypeName()}"></td></tr>
+    <tr><td style="background: #5514B4; color: white; font-weight: bold; font-family: Arial; padding: 6px; border: 1px solid #ccc; text-align: left; min-width:200px;">Patch Panel / Cable Manager required?</td>
+        <td style="background: #e3dfde; color: black; font-weight: normal; font-family: Arial; padding: 6px; border: 1px solid #ccc; text-align: left; min-width:200px;"><span th:if="${order.pbtdc.customerAccess.terminatingEquipment?.cableManager == true}">Yes</span><span th:unless="${order.pbtdc.customerAccess.terminatingEquipment?.cableManager == true}">No</span></td>
+    </tr>
+</table>
+
+<hr th:if="${order.statusNotes != null}">
+<div style="color:#6600cc; font-weight:bold; font-family: Arial; font-size:16px; padding-left: 5px; padding-top: 15px; padding-bottom: 15px;" th:if="${order.statusNotes != null}">Notes</div>
+<table th:if="${order.statusNotes != null}">
+    <tr><td style="background: #e3dfde; color: black; font-weight: normal; font-family: Arial; padding: 6px; border: 1px solid #ccc; text-align: left; min-width:200px;" th:text="${order.statusNotes}"></td></tr>
+</table>
+</body>
+</html>

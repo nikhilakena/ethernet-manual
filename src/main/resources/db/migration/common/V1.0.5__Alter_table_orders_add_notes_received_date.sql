@@ -1,0 +1,1 @@
+ALTER TABLE `orders` add column notes_received_date TIMESTAMP NULL DEFAULT NULL ;

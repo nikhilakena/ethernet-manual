@@ -1,0 +1,1440 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_1i1aa7q" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.4.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.15.0">
+  <bpmn:collaboration id="Collaboration_0guoem4">
+    <bpmn:participant id="Participant_1ljex7n" name="PBTDC order" processRef="DataCircuitProvisionningOrderProcess" />
+  </bpmn:collaboration>
+  <bpmn:process id="DataCircuitProvisionningOrderProcess" name="PBTDC" isExecutable="true">
+    <bpmn:sequenceFlow id="Flow_1hrh0s2" sourceRef="Activity_SupplierProvisioningProcess" targetRef="Gateway_PbtdcWsipt" />
+    <bpmn:sequenceFlow id="Flow_0op0ewe" sourceRef="Activity_OrderValidationProcess" targetRef="Activity_SupplierAcceptProcess" />
+    <bpmn:sequenceFlow id="Flow_057vnfk" sourceRef="StartEvent_PbtdcOrder" targetRef="Activity_OrderValidationProcess" />
+    <bpmn:sequenceFlow id="Flow_0cwlkdn" sourceRef="BoundaryEvent_OrderInvalid" targetRef="IntermediateEvent_OrderValidationToRejected" />
+    <bpmn:sequenceFlow id="Flow_06nkov8" sourceRef="BoundaryEvent_SupplierOrderRejected" targetRef="IntermediateEvent_SupplierOrderToRejected" />
+    <bpmn:intermediateThrowEvent id="IntermediateEvent_OrderValidationToRejected" name="To rejected">
+      <bpmn:incoming>Flow_0cwlkdn</bpmn:incoming>
+      <bpmn:linkEventDefinition id="LinkEventDefinition_1aj8aoa" name="Rejected" />
+    </bpmn:intermediateThrowEvent>
+    <bpmn:subProcess id="Activity_OrderValidationProcess" name="Order validation">
+      <bpmn:incoming>Flow_057vnfk</bpmn:incoming>
+      <bpmn:outgoing>Flow_0op0ewe</bpmn:outgoing>
+      <bpmn:startEvent id="StartEvent_orderValidation">
+        <bpmn:outgoing>Flow_1mxwpii</bpmn:outgoing>
+      </bpmn:startEvent>
+      <bpmn:sequenceFlow id="Flow_1mxwpii" sourceRef="StartEvent_orderValidation" targetRef="Activity_CheckQuote" />
+      <bpmn:serviceTask id="Activity_CheckQuote" name="Check quote" camunda:asyncBefore="true" camunda:delegateExpression="${checkQuoteServiceTask}">
+        <bpmn:incoming>Flow_1mxwpii</bpmn:incoming>
+        <bpmn:outgoing>Flow_1dlgjrp</bpmn:outgoing>
+      </bpmn:serviceTask>
+      <bpmn:sequenceFlow id="Flow_1dlgjrp" sourceRef="Activity_CheckQuote" targetRef="Activity_CheckOrderDuplicate" />
+      <bpmn:sequenceFlow id="Flow_0izit2o" sourceRef="BoundaryEvent_QuoteInvalid" targetRef="EndEvent_OrderInvalid" />
+      <bpmn:boundaryEvent id="BoundaryEvent_QuoteInvalid" name="Quote invalid" attachedToRef="Activity_CheckQuote">
+        <bpmn:outgoing>Flow_0izit2o</bpmn:outgoing>
+        <bpmn:errorEventDefinition id="ErrorEventDefinition_1o0m3zk" errorRef="Error_1pawfxq" />
+      </bpmn:boundaryEvent>
+      <bpmn:sequenceFlow id="Flow_0ielcsu" sourceRef="BoundaryEvent_UserUnauthorized" targetRef="EndEvent_OrderInvalid" />
+      <bpmn:boundaryEvent id="BoundaryEvent_UserUnauthorized" name="User unauthorized" attachedToRef="Activity_CheckQuote">
+        <bpmn:outgoing>Flow_0ielcsu</bpmn:outgoing>
+        <bpmn:errorEventDefinition id="ErrorEventDefinition_1gphhz7" errorRef="Error_1hd7hvw" />
+      </bpmn:boundaryEvent>
+      <bpmn:serviceTask id="Activity_CheckOrderDuplicate" name="Check duplicate order" camunda:asyncBefore="true" camunda:delegateExpression="${checkDuplicateOrderServiceTask}">
+        <bpmn:incoming>Flow_1dlgjrp</bpmn:incoming>
+        <bpmn:outgoing>Flow_0avmc91</bpmn:outgoing>
+      </bpmn:serviceTask>
+      <bpmn:boundaryEvent id="BoundaryEvent_DuplicateOrderFound" name="Duplicate order found" attachedToRef="Activity_CheckOrderDuplicate">
+        <bpmn:outgoing>Flow_0llbo2i</bpmn:outgoing>
+        <bpmn:errorEventDefinition id="ErrorEventDefinition_0mxx81c" errorRef="Error_0ds5pqm" />
+      </bpmn:boundaryEvent>
+      <bpmn:sequenceFlow id="Flow_0llbo2i" sourceRef="BoundaryEvent_DuplicateOrderFound" targetRef="EndEvent_OrderInvalid" />
+      <bpmn:exclusiveGateway id="Gateway_OrderValidationWsipt" name="WSIPT?" default="Flow_0puufam">
+        <bpmn:incoming>Flow_0avmc91</bpmn:incoming>
+        <bpmn:outgoing>Flow_0jnabq7</bpmn:outgoing>
+        <bpmn:outgoing>Flow_0puufam</bpmn:outgoing>
+      </bpmn:exclusiveGateway>
+      <bpmn:sequenceFlow id="Flow_0avmc91" sourceRef="Activity_CheckOrderDuplicate" targetRef="Gateway_OrderValidationWsipt" />
+      <bpmn:sequenceFlow id="Flow_0jnabq7" name="yes" sourceRef="Gateway_OrderValidationWsipt" targetRef="Activity_CheckInventory">
+        <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${wsiptProduct == "yes"}</bpmn:conditionExpression>
+      </bpmn:sequenceFlow>
+      <bpmn:serviceTask id="Activity_CheckInventory" name="Check inventory" camunda:asyncBefore="true" camunda:delegateExpression="${checkInventoryServiceTask}">
+        <bpmn:incoming>Flow_0jnabq7</bpmn:incoming>
+        <bpmn:outgoing>Flow_1l3k0m7</bpmn:outgoing>
+      </bpmn:serviceTask>
+      <bpmn:endEvent id="EndEvent_OrderValid" name="Order valid">
+        <bpmn:incoming>Flow_1wet7pk</bpmn:incoming>
+      </bpmn:endEvent>
+      <bpmn:sequenceFlow id="Flow_0puufam" name="no" sourceRef="Gateway_OrderValidationWsipt" targetRef="Activity_SendPOANotification" />
+      <bpmn:sequenceFlow id="Flow_1l3k0m7" sourceRef="Activity_CheckInventory" targetRef="Activity_SendPOANotification" />
+      <bpmn:sequenceFlow id="Flow_1vxbh6s" sourceRef="BoundaryEvent_EtherwayNotBelongToOao" targetRef="EndEvent_OrderInvalid" />
+      <bpmn:boundaryEvent id="BoundaryEvent_EtherwayNotBelongToOao" name="Etherway does not belong to OAO" attachedToRef="Activity_CheckInventory">
+        <bpmn:outgoing>Flow_1vxbh6s</bpmn:outgoing>
+        <bpmn:errorEventDefinition id="ErrorEventDefinition_0qvepwr" errorRef="Error_07dmypz" />
+      </bpmn:boundaryEvent>
+      <bpmn:endEvent id="EndEvent_OrderInvalid" name="Order invalid">
+        <bpmn:incoming>Flow_0izit2o</bpmn:incoming>
+        <bpmn:incoming>Flow_0ielcsu</bpmn:incoming>
+        <bpmn:incoming>Flow_0llbo2i</bpmn:incoming>
+        <bpmn:incoming>Flow_1vxbh6s</bpmn:incoming>
+        <bpmn:errorEventDefinition id="ErrorEventDefinition_189t4pw" errorRef="Error_18zljkk" />
+      </bpmn:endEvent>
+      <bpmn:serviceTask id="Activity_SendPOANotification" name="Send POA Notification" camunda:asyncBefore="true" camunda:delegateExpression="${sendPOANotificationServiceTask}">
+        <bpmn:incoming>Flow_1l3k0m7</bpmn:incoming>
+        <bpmn:incoming>Flow_0puufam</bpmn:incoming>
+        <bpmn:outgoing>Flow_1wet7pk</bpmn:outgoing>
+      </bpmn:serviceTask>
+      <bpmn:sequenceFlow id="Flow_1wet7pk" sourceRef="Activity_SendPOANotification" targetRef="EndEvent_OrderValid" />
+    </bpmn:subProcess>
+    <bpmn:startEvent id="StartEvent_PbtdcOrder" name="PBTDC order received">
+      <bpmn:outgoing>Flow_057vnfk</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:boundaryEvent id="BoundaryEvent_OrderInvalid" name="Invalid" attachedToRef="Activity_OrderValidationProcess">
+      <bpmn:outgoing>Flow_0cwlkdn</bpmn:outgoing>
+      <bpmn:errorEventDefinition id="ErrorEventDefinition_1a22lo4" errorRef="Error_18zljkk" />
+    </bpmn:boundaryEvent>
+    <bpmn:serviceTask id="Activity_CreateAsset" name="Create asset" camunda:asyncBefore="true" camunda:delegateExpression="${createAssetServiceTask}">
+      <bpmn:incoming>Flow_1mpym5a</bpmn:incoming>
+      <bpmn:outgoing>Flow_063o3hs</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="Gateway_PbtdcWsipt" name="WSIPT?">
+      <bpmn:incoming>Flow_1hrh0s2</bpmn:incoming>
+      <bpmn:outgoing>Flow_1mpym5a</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0jh2us6</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sendTask id="Activity_SendCompleteNotification" name="Send complete" camunda:asyncBefore="true" camunda:delegateExpression="${sendCompleteNotificationServiceTask}">
+      <bpmn:incoming>Flow_0jh2us6</bpmn:incoming>
+      <bpmn:incoming>Flow_063o3hs</bpmn:incoming>
+      <bpmn:outgoing>Flow_1p57yra</bpmn:outgoing>
+    </bpmn:sendTask>
+    <bpmn:serviceTask id="Activity_OrderStatusUpdateCompleted" name="Order status to complete" camunda:asyncBefore="true" camunda:delegateExpression="${orderStatusUpdateCompletedServiceTask}">
+      <bpmn:incoming>Flow_1p57yra</bpmn:incoming>
+      <bpmn:outgoing>Flow_0bmy69p</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="EndEvent_PbtdcOrderCompleted" name="Order completed">
+      <bpmn:incoming>Flow_0bmy69p</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:endEvent id="EndEvent_PbtdcOrderRejected" name="Order rejected">
+      <bpmn:incoming>Flow_1mltfed</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:serviceTask id="Activity_OrderStatusUpdateRejected" name="Order status to complete" camunda:asyncBefore="true" camunda:delegateExpression="${orderStatusUpdateCompletedServiceTask}">
+      <bpmn:incoming>Flow_0g3h4ik</bpmn:incoming>
+      <bpmn:outgoing>Flow_1mltfed</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sendTask id="Activity_SendRejectNotification" name="Send Reject notification" camunda:asyncBefore="true" camunda:delegateExpression="${sendRejectNotificationServiceTask}">
+      <bpmn:incoming>Flow_1n2uguj</bpmn:incoming>
+      <bpmn:outgoing>Flow_0g3h4ik</bpmn:outgoing>
+    </bpmn:sendTask>
+    <bpmn:intermediateCatchEvent id="IntermediateEvent_Rejected" name="Rejected">
+      <bpmn:outgoing>Flow_1n2uguj</bpmn:outgoing>
+      <bpmn:linkEventDefinition id="LinkEventDefinition_03wp2ip" name="Rejected" />
+    </bpmn:intermediateCatchEvent>
+    <bpmn:intermediateCatchEvent id="IntermediateEvent_Undeliverable" name="Undeliverable">
+      <bpmn:outgoing>Flow_0uqw97x</bpmn:outgoing>
+      <bpmn:linkEventDefinition id="LinkEventDefinition_1wrku98" name="Undeliverable" />
+    </bpmn:intermediateCatchEvent>
+    <bpmn:serviceTask id="Activity_PbtdcProcessUndeliverable" name="Process Undeliverable Notification" camunda:asyncBefore="true" camunda:delegateExpression="${processPbtdcUndeliverableNotificationServiceTask}">
+      <bpmn:incoming>Flow_0uqw97x</bpmn:incoming>
+      <bpmn:outgoing>Flow_1va0210</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sendTask id="Activity_SendUndeliverableNotification" name="Send Undeliverable notification" camunda:asyncBefore="true" camunda:delegateExpression="${sendUndeliverableNotificationServiceTask}">
+      <bpmn:incoming>Flow_1va0210</bpmn:incoming>
+      <bpmn:outgoing>Flow_1dbbnd1</bpmn:outgoing>
+    </bpmn:sendTask>
+    <bpmn:serviceTask id="Activity_OrderStatusUpdateUndeliverable" name="Order status to complete" camunda:asyncBefore="true" camunda:delegateExpression="${orderStatusUpdateCompletedServiceTask}">
+      <bpmn:incoming>Flow_1dbbnd1</bpmn:incoming>
+      <bpmn:outgoing>Flow_0w9sovy</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="EndEvent_PbtdcOrderUndeliverable" name="Order undelivered">
+      <bpmn:incoming>Flow_0w9sovy</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1mpym5a" name="yes" sourceRef="Gateway_PbtdcWsipt" targetRef="Activity_CreateAsset">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${wsiptProduct == true}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_063o3hs" sourceRef="Activity_CreateAsset" targetRef="Activity_SendCompleteNotification" />
+    <bpmn:sequenceFlow id="Flow_0jh2us6" name="no" sourceRef="Gateway_PbtdcWsipt" targetRef="Activity_SendCompleteNotification">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${wsiptProduct == false}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_1p57yra" sourceRef="Activity_SendCompleteNotification" targetRef="Activity_OrderStatusUpdateCompleted" />
+    <bpmn:sequenceFlow id="Flow_0bmy69p" sourceRef="Activity_OrderStatusUpdateCompleted" targetRef="EndEvent_PbtdcOrderCompleted" />
+    <bpmn:sequenceFlow id="Flow_1mltfed" sourceRef="Activity_OrderStatusUpdateRejected" targetRef="EndEvent_PbtdcOrderRejected" />
+    <bpmn:sequenceFlow id="Flow_0g3h4ik" sourceRef="Activity_SendRejectNotification" targetRef="Activity_OrderStatusUpdateRejected" />
+    <bpmn:sequenceFlow id="Flow_1n2uguj" sourceRef="IntermediateEvent_Rejected" targetRef="Activity_SendRejectNotification" />
+    <bpmn:sequenceFlow id="Flow_0uqw97x" sourceRef="IntermediateEvent_Undeliverable" targetRef="Activity_PbtdcProcessUndeliverable" />
+    <bpmn:sequenceFlow id="Flow_1va0210" sourceRef="Activity_PbtdcProcessUndeliverable" targetRef="Activity_SendUndeliverableNotification" />
+    <bpmn:sequenceFlow id="Flow_1dbbnd1" sourceRef="Activity_SendUndeliverableNotification" targetRef="Activity_OrderStatusUpdateUndeliverable" />
+    <bpmn:sequenceFlow id="Flow_0w9sovy" sourceRef="Activity_OrderStatusUpdateUndeliverable" targetRef="EndEvent_PbtdcOrderUndeliverable" />
+    <bpmn:sequenceFlow id="Flow_167cdyi" sourceRef="Activity_SupplierAcceptProcess" targetRef="Activity_SupplierProvisioningProcess" />
+    <bpmn:sequenceFlow id="Flow_0dkrg2y" sourceRef="BoundaryEvent_SupplierOrderUndeliverable" targetRef="IntermediateEvent_SupplierOrderToUndeliverable" />
+    <bpmn:subProcess id="Activity_SupplierAcceptProcess" name="Supplier Accept">
+      <bpmn:incoming>Flow_0op0ewe</bpmn:incoming>
+      <bpmn:outgoing>Flow_167cdyi</bpmn:outgoing>
+      <bpmn:startEvent id="StartEvent_SupplierProvisioning" name="Provisioning started">
+        <bpmn:outgoing>Flow_01idgwu</bpmn:outgoing>
+      </bpmn:startEvent>
+      <bpmn:sequenceFlow id="Flow_01idgwu" sourceRef="StartEvent_SupplierProvisioning" targetRef="Activity_SendOrder" />
+      <bpmn:sequenceFlow id="Flow_1plj0sa" sourceRef="Activity_SendOrder" targetRef="Gateway_SupplierProvisioningAcceptOrReject" />
+      <bpmn:sendTask id="Activity_SendAcceptNotification" name="Send Accept notification" camunda:asyncBefore="true" camunda:delegateExpression="${sendAcceptNotificationServiceTask}">
+        <bpmn:incoming>Flow_1rtbids</bpmn:incoming>
+        <bpmn:outgoing>Flow_0kz34je</bpmn:outgoing>
+      </bpmn:sendTask>
+      <bpmn:serviceTask id="Activity_SendOrder" name="Send order to SEAL" camunda:asyncBefore="true" camunda:delegateExpression="${sendOrderServiceTask}">
+        <bpmn:incoming>Flow_01idgwu</bpmn:incoming>
+        <bpmn:outgoing>Flow_1plj0sa</bpmn:outgoing>
+      </bpmn:serviceTask>
+      <bpmn:eventBasedGateway id="Gateway_SupplierProvisioningAcceptOrReject" name="Accept or Reject?">
+        <bpmn:incoming>Flow_1plj0sa</bpmn:incoming>
+        <bpmn:outgoing>Flow_06m6vxw</bpmn:outgoing>
+        <bpmn:outgoing>Flow_0x7jn3a</bpmn:outgoing>
+      </bpmn:eventBasedGateway>
+      <bpmn:intermediateCatchEvent id="Message_SupplierAcceptReceived" name="Accept received">
+        <bpmn:incoming>Flow_06m6vxw</bpmn:incoming>
+        <bpmn:outgoing>Flow_1i4bww8</bpmn:outgoing>
+        <bpmn:messageEventDefinition id="MessageEventDefinition_0jmd1ih" messageRef="Message_18gx72p" />
+      </bpmn:intermediateCatchEvent>
+      <bpmn:sequenceFlow id="Flow_06m6vxw" sourceRef="Gateway_SupplierProvisioningAcceptOrReject" targetRef="Message_SupplierAcceptReceived" />
+      <bpmn:intermediateCatchEvent id="Message_SupplierRejectReceived" name="Reject received">
+        <bpmn:incoming>Flow_0x7jn3a</bpmn:incoming>
+        <bpmn:outgoing>Flow_0j87yp1</bpmn:outgoing>
+        <bpmn:messageEventDefinition id="MessageEventDefinition_110h224" messageRef="Message_09u2ldf" />
+      </bpmn:intermediateCatchEvent>
+      <bpmn:sequenceFlow id="Flow_0x7jn3a" sourceRef="Gateway_SupplierProvisioningAcceptOrReject" targetRef="Message_SupplierRejectReceived" />
+      <bpmn:sequenceFlow id="Flow_1i4bww8" sourceRef="Message_SupplierAcceptReceived" targetRef="Activity_ProcessAcceptNotification" />
+      <bpmn:endEvent id="EndEvent_SupplierProvisioningRejected" name="Order rejected">
+        <bpmn:incoming>Flow_0j87yp1</bpmn:incoming>
+        <bpmn:errorEventDefinition id="ErrorEventDefinition_08p4f25" errorRef="Error_0v23itv" />
+      </bpmn:endEvent>
+      <bpmn:serviceTask id="Activity_ProcessAcceptNotification" name="Process Accept Notification" camunda:asyncBefore="true" camunda:delegateExpression="${processAcceptNotificationServiceTask}">
+        <bpmn:incoming>Flow_1i4bww8</bpmn:incoming>
+        <bpmn:outgoing>Flow_1rtbids</bpmn:outgoing>
+      </bpmn:serviceTask>
+      <bpmn:sequenceFlow id="Flow_1rtbids" sourceRef="Activity_ProcessAcceptNotification" targetRef="Activity_SendAcceptNotification" />
+      <bpmn:endEvent id="EndEvent_SupplierAcceptCompleted" name="Accept Completed">
+        <bpmn:incoming>Flow_0kz34je</bpmn:incoming>
+      </bpmn:endEvent>
+      <bpmn:sequenceFlow id="Flow_0kz34je" sourceRef="Activity_SendAcceptNotification" targetRef="EndEvent_SupplierAcceptCompleted" />
+      <bpmn:sequenceFlow id="Flow_0j87yp1" sourceRef="Message_SupplierRejectReceived" targetRef="EndEvent_SupplierProvisioningRejected" />
+      <bpmn:subProcess id="Activity_DelayedValidationProcess" name="Delayed validation process" triggeredByEvent="true">
+        <bpmn:startEvent id="StartEvent_DelayedValidation" name="Delayed validation received" isInterrupting="false">
+          <bpmn:outgoing>Flow_0fhdpza</bpmn:outgoing>
+          <bpmn:messageEventDefinition id="MessageEventDefinition_0kqfrbf" messageRef="Message_16di3gd" />
+        </bpmn:startEvent>
+        <bpmn:sequenceFlow id="Flow_0fhdpza" sourceRef="StartEvent_DelayedValidation" targetRef="Activity_SendDelayedValidationNotification" />
+        <bpmn:sendTask id="Activity_SendDelayedValidationNotification" name="Send Delayed Validation notification" camunda:asyncBefore="true" camunda:delegateExpression="${sendDelayedValidationNotificationServiceTask}">
+          <bpmn:incoming>Flow_0fhdpza</bpmn:incoming>
+          <bpmn:outgoing>Flow_0tr6iu1</bpmn:outgoing>
+        </bpmn:sendTask>
+        <bpmn:endEvent id="EndEvent_DelayedValidation" name="Delayed validation processed">
+          <bpmn:incoming>Flow_0tr6iu1</bpmn:incoming>
+        </bpmn:endEvent>
+        <bpmn:sequenceFlow id="Flow_0tr6iu1" sourceRef="Activity_SendDelayedValidationNotification" targetRef="EndEvent_DelayedValidation" />
+      </bpmn:subProcess>
+      <bpmn:subProcess id="Activity_GLANIDUpdationBeforeAcceptProcess" name="GLAN ID updation process" triggeredByEvent="true">
+        <bpmn:startEvent id="StartEvent_GlanIdUpdationBeforeAccept" name="GLAN ID Updation received before Accept" isInterrupting="false">
+          <bpmn:outgoing>Flow_1y4j4me</bpmn:outgoing>
+          <bpmn:messageEventDefinition id="MessageEventDefinition_0r6bs53" messageRef="Message_1n8jj7c" />
+        </bpmn:startEvent>
+        <bpmn:endEvent id="EndEvent_GlanIdUpdationBeforeAccept" name="GLAN ID Updation processed">
+          <bpmn:incoming>Flow_1gacdai</bpmn:incoming>
+        </bpmn:endEvent>
+        <bpmn:serviceTask id="Activity_ProcessGlanIdUpdationNotificationBeforeAccept" name="Process GLAN ID Updation Notification" camunda:asyncBefore="true" camunda:delegateExpression="${processGlanIdUpdationNotificationServiceTask}">
+          <bpmn:incoming>Flow_1y4j4me</bpmn:incoming>
+          <bpmn:outgoing>Flow_1gacdai</bpmn:outgoing>
+        </bpmn:serviceTask>
+        <bpmn:sequenceFlow id="Flow_1y4j4me" sourceRef="StartEvent_GlanIdUpdationBeforeAccept" targetRef="Activity_ProcessGlanIdUpdationNotificationBeforeAccept" />
+        <bpmn:sequenceFlow id="Flow_1gacdai" sourceRef="Activity_ProcessGlanIdUpdationNotificationBeforeAccept" targetRef="EndEvent_GlanIdUpdationBeforeAccept" />
+      </bpmn:subProcess>
+    </bpmn:subProcess>
+    <bpmn:boundaryEvent id="BoundaryEvent_SupplierOrderRejected" name="Rejected" attachedToRef="Activity_SupplierAcceptProcess">
+      <bpmn:outgoing>Flow_06nkov8</bpmn:outgoing>
+      <bpmn:errorEventDefinition id="ErrorEventDefinition_1p7yllj" errorRef="Error_0v23itv" />
+    </bpmn:boundaryEvent>
+    <bpmn:intermediateThrowEvent id="IntermediateEvent_SupplierOrderToRejected" name="To rejected">
+      <bpmn:incoming>Flow_06nkov8</bpmn:incoming>
+      <bpmn:linkEventDefinition id="LinkEventDefinition_1uiiqzv" name="Rejected" />
+    </bpmn:intermediateThrowEvent>
+    <bpmn:intermediateThrowEvent id="IntermediateEvent_SupplierOrderToUndeliverable" name="To Undeliverable">
+      <bpmn:incoming>Flow_0dkrg2y</bpmn:incoming>
+      <bpmn:linkEventDefinition id="LinkEventDefinition_1mlmbsx" name="Undeliverable" />
+    </bpmn:intermediateThrowEvent>
+    <bpmn:boundaryEvent id="BoundaryEvent_SupplierOrderUndeliverable" name="Undeliverable received" attachedToRef="Activity_SupplierProvisioningProcess">
+      <bpmn:outgoing>Flow_0dkrg2y</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_146uitl" messageRef="Message_00joq4f" />
+    </bpmn:boundaryEvent>
+    <bpmn:subProcess id="Activity_SupplierProvisioningProcess" name="Supplier Provisioning">
+      <bpmn:incoming>Flow_167cdyi</bpmn:incoming>
+      <bpmn:outgoing>Flow_1hrh0s2</bpmn:outgoing>
+      <bpmn:startEvent id="Start_Event_SupplierComplete" name="Complete Started">
+        <bpmn:outgoing>Flow_11qc47h</bpmn:outgoing>
+      </bpmn:startEvent>
+      <bpmn:subProcess id="Activity_StatusProcess" name="Status process" triggeredByEvent="true">
+        <bpmn:startEvent id="StartEvent_Status" name="Status received" isInterrupting="false">
+          <bpmn:outgoing>Flow_19iiskq</bpmn:outgoing>
+          <bpmn:messageEventDefinition id="MessageEventDefinition_1j8cld2" messageRef="Message_0eb1isj" />
+        </bpmn:startEvent>
+        <bpmn:sendTask id="Activity_SendStatusNotification" name="Send Status notification" camunda:asyncBefore="true" camunda:delegateExpression="${sendStatusNotificationServiceTask}">
+          <bpmn:incoming>Flow_1ankg75</bpmn:incoming>
+          <bpmn:outgoing>Flow_059oi1c</bpmn:outgoing>
+        </bpmn:sendTask>
+        <bpmn:exclusiveGateway id="Gateway_SupplierProviStatusInternal" name="Internal?">
+          <bpmn:incoming>Flow_08gy0qa</bpmn:incoming>
+          <bpmn:outgoing>Flow_11pfwb9</bpmn:outgoing>
+          <bpmn:outgoing>Flow_1ankg75</bpmn:outgoing>
+        </bpmn:exclusiveGateway>
+        <bpmn:endEvent id="EndEvent_Status" name="Status processed">
+          <bpmn:incoming>Flow_1pttc9u</bpmn:incoming>
+        </bpmn:endEvent>
+        <bpmn:sequenceFlow id="Flow_059oi1c" sourceRef="Activity_SendStatusNotification" targetRef="Gateway_SupplierProviStatusInternalJoin" />
+        <bpmn:sequenceFlow id="Flow_11pfwb9" name="yes" sourceRef="Gateway_SupplierProviStatusInternal" targetRef="Gateway_SupplierProviStatusInternalJoin">
+          <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${internalNotificationType== true}</bpmn:conditionExpression>
+        </bpmn:sequenceFlow>
+        <bpmn:exclusiveGateway id="Gateway_SupplierProviStatusInternalJoin">
+          <bpmn:incoming>Flow_059oi1c</bpmn:incoming>
+          <bpmn:incoming>Flow_11pfwb9</bpmn:incoming>
+          <bpmn:outgoing>Flow_1pttc9u</bpmn:outgoing>
+        </bpmn:exclusiveGateway>
+        <bpmn:sequenceFlow id="Flow_1pttc9u" sourceRef="Gateway_SupplierProviStatusInternalJoin" targetRef="EndEvent_Status" />
+        <bpmn:sequenceFlow id="Flow_1ankg75" name="no" sourceRef="Gateway_SupplierProviStatusInternal" targetRef="Activity_SendStatusNotification">
+          <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${internalNotificationType== false}</bpmn:conditionExpression>
+        </bpmn:sequenceFlow>
+        <bpmn:sequenceFlow id="Flow_08gy0qa" sourceRef="Activity_ProcessStatusNotification" targetRef="Gateway_SupplierProviStatusInternal" />
+        <bpmn:sequenceFlow id="Flow_19iiskq" sourceRef="StartEvent_Status" targetRef="Activity_ProcessStatusNotification" />
+        <bpmn:serviceTask id="Activity_ProcessStatusNotification" name="Process Status Notification" camunda:asyncBefore="true" camunda:delegateExpression="${processStatusNotificationServiceTask}">
+          <bpmn:incoming>Flow_19iiskq</bpmn:incoming>
+          <bpmn:outgoing>Flow_08gy0qa</bpmn:outgoing>
+        </bpmn:serviceTask>
+      </bpmn:subProcess>
+      <bpmn:subProcess id="Activity_ConfirmationProcess" name="Confirmation process" triggeredByEvent="true">
+        <bpmn:startEvent id="StartEvent_Confirmation" name="Confirmation received" isInterrupting="false">
+          <bpmn:outgoing>Flow_04f8fex</bpmn:outgoing>
+          <bpmn:messageEventDefinition id="MessageEventDefinition_1gih327" messageRef="Message_1ba92ev" />
+        </bpmn:startEvent>
+        <bpmn:sequenceFlow id="Flow_04f8fex" sourceRef="StartEvent_Confirmation" targetRef="Activity_ProcessConfirmationNotification" />
+        <bpmn:sendTask id="Activity_SendConfirmationNotification" name="Send Confirmation notification" camunda:asyncBefore="true" camunda:delegateExpression="${sendConfirmationNotificationServiceTask}">
+          <bpmn:incoming>Flow_00gpmtt</bpmn:incoming>
+          <bpmn:outgoing>Flow_0xox3mj</bpmn:outgoing>
+        </bpmn:sendTask>
+        <bpmn:endEvent id="EndEvent_Confirmation" name="Confirmation processed">
+          <bpmn:incoming>Flow_0xox3mj</bpmn:incoming>
+        </bpmn:endEvent>
+        <bpmn:sequenceFlow id="Flow_00gpmtt" sourceRef="Activity_ProcessConfirmationNotification" targetRef="Activity_SendConfirmationNotification" />
+        <bpmn:serviceTask id="Activity_ProcessConfirmationNotification" name="Process Confirmation Notification" camunda:asyncBefore="true" camunda:delegateExpression="${processConfirmationNotificationServiceTask}">
+          <bpmn:incoming>Flow_04f8fex</bpmn:incoming>
+          <bpmn:outgoing>Flow_00gpmtt</bpmn:outgoing>
+        </bpmn:serviceTask>
+        <bpmn:sequenceFlow id="Flow_0xox3mj" sourceRef="Activity_SendConfirmationNotification" targetRef="EndEvent_Confirmation" />
+      </bpmn:subProcess>
+      <bpmn:subProcess id="Activity_CustomerDelayStartProcess" name="Customer delay start process" triggeredByEvent="true">
+        <bpmn:startEvent id="StartEvent_CustomerDelayStart" name="Customer delay start received" isInterrupting="false">
+          <bpmn:outgoing>Flow_12aoagj</bpmn:outgoing>
+          <bpmn:messageEventDefinition id="MessageEventDefinition_0e9a4xo" messageRef="Message_1z0y7ky" />
+        </bpmn:startEvent>
+        <bpmn:sequenceFlow id="Flow_12aoagj" sourceRef="StartEvent_CustomerDelayStart" targetRef="Activity_ProcessCustomerDelayStartNotification" />
+        <bpmn:sendTask id="Activity_SendCustomerDelayStartNotification" name="Send Customer delay start notification" camunda:asyncBefore="true" camunda:delegateExpression="${sendCustomerDelayStartNotificationServiceTask}">
+          <bpmn:incoming>Flow_1yl9nfi</bpmn:incoming>
+          <bpmn:outgoing>Flow_0fd7p01</bpmn:outgoing>
+        </bpmn:sendTask>
+        <bpmn:endEvent id="EndEvent_CustomerDelayStart" name="Customer delay start processed">
+          <bpmn:incoming>Flow_0fd7p01</bpmn:incoming>
+        </bpmn:endEvent>
+        <bpmn:serviceTask id="Activity_ProcessCustomerDelayStartNotification" name="Process Customer Delay Start" camunda:asyncBefore="true" camunda:delegateExpression="${processPbtdcCustomerDelayStartNotification}">
+          <bpmn:incoming>Flow_12aoagj</bpmn:incoming>
+          <bpmn:outgoing>Flow_1yl9nfi</bpmn:outgoing>
+        </bpmn:serviceTask>
+        <bpmn:sequenceFlow id="Flow_0fd7p01" sourceRef="Activity_SendCustomerDelayStartNotification" targetRef="EndEvent_CustomerDelayStart" />
+        <bpmn:sequenceFlow id="Flow_1yl9nfi" sourceRef="Activity_ProcessCustomerDelayStartNotification" targetRef="Activity_SendCustomerDelayStartNotification" />
+      </bpmn:subProcess>
+      <bpmn:subProcess id="Activity_CustomerDelayEndProcess" name="Customer delay end process" triggeredByEvent="true">
+        <bpmn:sendTask id="Activity_SendCustomerDelayEndNotification" name="Send Customer delay end notification" camunda:asyncBefore="true" camunda:delegateExpression="${sendCustomerDelayEndNotificationServiceTask}">
+          <bpmn:incoming>Flow_0ydr7wk</bpmn:incoming>
+          <bpmn:outgoing>Flow_0v63rhr</bpmn:outgoing>
+        </bpmn:sendTask>
+        <bpmn:endEvent id="EndEvent_CustomerDelayEnd" name="Customer delay end processed">
+          <bpmn:incoming>Flow_0v63rhr</bpmn:incoming>
+        </bpmn:endEvent>
+        <bpmn:sequenceFlow id="Flow_0iypuv5" sourceRef="StartEvent_CustomerDelayEnd" targetRef="Activity_ProcessCustomerDelayEndNotification" />
+        <bpmn:sequenceFlow id="Flow_0v63rhr" sourceRef="Activity_SendCustomerDelayEndNotification" targetRef="EndEvent_CustomerDelayEnd" />
+        <bpmn:startEvent id="StartEvent_CustomerDelayEnd" name="Customer delay end received" isInterrupting="false">
+          <bpmn:outgoing>Flow_0iypuv5</bpmn:outgoing>
+          <bpmn:messageEventDefinition id="MessageEventDefinition_02tz727" messageRef="Message_1t5hwor" />
+        </bpmn:startEvent>
+        <bpmn:serviceTask id="Activity_ProcessCustomerDelayEndNotification" name="Process Customer Delay End" camunda:asyncBefore="true" camunda:delegateExpression="${processPbtdcCustomerDelayEndNotification}">
+          <bpmn:incoming>Flow_0iypuv5</bpmn:incoming>
+          <bpmn:outgoing>Flow_0ydr7wk</bpmn:outgoing>
+        </bpmn:serviceTask>
+        <bpmn:sequenceFlow id="Flow_0ydr7wk" sourceRef="Activity_ProcessCustomerDelayEndNotification" targetRef="Activity_SendCustomerDelayEndNotification" />
+      </bpmn:subProcess>
+      <bpmn:subProcess id="Activity_NotesProcess" name="Notes process" triggeredByEvent="true">
+        <bpmn:sendTask id="Activity_SendNotesNotification" name="Send Notes notification" camunda:asyncBefore="true" camunda:delegateExpression="${sendNotesNotificationServiceTask}">
+          <bpmn:incoming>Flow_0wpzdhm</bpmn:incoming>
+          <bpmn:outgoing>Flow_13m1zqm</bpmn:outgoing>
+        </bpmn:sendTask>
+        <bpmn:sequenceFlow id="Flow_15ru4jb" sourceRef="StartEvent_Notes" targetRef="Activity_ProcessNotesNotification" />
+        <bpmn:startEvent id="StartEvent_Notes" name="Notes received" isInterrupting="false">
+          <bpmn:outgoing>Flow_15ru4jb</bpmn:outgoing>
+          <bpmn:messageEventDefinition id="MessageEventDefinition_00u5lsm" messageRef="Message_09d61x4" />
+        </bpmn:startEvent>
+        <bpmn:sequenceFlow id="Flow_0k2hl39" sourceRef="Activity_ProcessNotesNotification" targetRef="Gateway_SupplierProviNotesTextEmpty" />
+        <bpmn:serviceTask id="Activity_ProcessNotesNotification" name="Process Notes Notification" camunda:asyncBefore="true" camunda:delegateExpression="${processNotesNotificationServiceTask}">
+          <bpmn:incoming>Flow_15ru4jb</bpmn:incoming>
+          <bpmn:outgoing>Flow_0k2hl39</bpmn:outgoing>
+        </bpmn:serviceTask>
+        <bpmn:exclusiveGateway id="Gateway_SupplierProviDeliveryOnTrackChanged" name="deliveryOnTrackChanged?">
+          <bpmn:incoming>Flow_0qd8ymb</bpmn:incoming>
+          <bpmn:outgoing>Flow_1ag9vtj</bpmn:outgoing>
+          <bpmn:outgoing>Flow_0b5bxlz</bpmn:outgoing>
+        </bpmn:exclusiveGateway>
+        <bpmn:sendTask id="Activity_SendCFNotificationAfterNotesNotification" name="Send Confirmation notification" camunda:asyncBefore="true" camunda:delegateExpression="${sendConfirmationNotificationServiceTask}">
+          <bpmn:incoming>Flow_1ag9vtj</bpmn:incoming>
+          <bpmn:outgoing>Flow_0pyv7uh</bpmn:outgoing>
+        </bpmn:sendTask>
+        <bpmn:sequenceFlow id="Flow_1ag9vtj" name="Yes" sourceRef="Gateway_SupplierProviDeliveryOnTrackChanged" targetRef="Activity_SendCFNotificationAfterNotesNotification">
+          <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${deliveryOnTrackChanged==true}</bpmn:conditionExpression>
+        </bpmn:sequenceFlow>
+        <bpmn:sequenceFlow id="Flow_0pyv7uh" sourceRef="Activity_SendCFNotificationAfterNotesNotification" targetRef="EndEvent_Notes" />
+        <bpmn:endEvent id="EndEvent_Notes" name="Notes processed">
+          <bpmn:incoming>Flow_0b5bxlz</bpmn:incoming>
+          <bpmn:incoming>Flow_0pyv7uh</bpmn:incoming>
+        </bpmn:endEvent>
+        <bpmn:sequenceFlow id="Flow_0b5bxlz" name="No" sourceRef="Gateway_SupplierProviDeliveryOnTrackChanged" targetRef="EndEvent_Notes">
+          <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${deliveryOnTrackChanged==false}</bpmn:conditionExpression>
+        </bpmn:sequenceFlow>
+        <bpmn:exclusiveGateway id="Gateway_SupplierProviNotesTextEmpty" name="notesTextEmpty?">
+          <bpmn:incoming>Flow_0k2hl39</bpmn:incoming>
+          <bpmn:outgoing>Flow_0wpzdhm</bpmn:outgoing>
+          <bpmn:outgoing>Flow_0axo5fh</bpmn:outgoing>
+        </bpmn:exclusiveGateway>
+        <bpmn:sequenceFlow id="Flow_0wpzdhm" name="No" sourceRef="Gateway_SupplierProviNotesTextEmpty" targetRef="Activity_SendNotesNotification">
+          <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${notesTextEmpty==false}</bpmn:conditionExpression>
+        </bpmn:sequenceFlow>
+        <bpmn:exclusiveGateway id="Gateway_PassThrough" name="Pass Thorugh Gateway">
+          <bpmn:incoming>Flow_0axo5fh</bpmn:incoming>
+          <bpmn:incoming>Flow_13m1zqm</bpmn:incoming>
+          <bpmn:outgoing>Flow_0qd8ymb</bpmn:outgoing>
+        </bpmn:exclusiveGateway>
+        <bpmn:sequenceFlow id="Flow_0axo5fh" name="Yes" sourceRef="Gateway_SupplierProviNotesTextEmpty" targetRef="Gateway_PassThrough">
+          <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${notesTextEmpty==true}</bpmn:conditionExpression>
+        </bpmn:sequenceFlow>
+        <bpmn:sequenceFlow id="Flow_0qd8ymb" sourceRef="Gateway_PassThrough" targetRef="Gateway_SupplierProviDeliveryOnTrackChanged" />
+        <bpmn:sequenceFlow id="Flow_13m1zqm" sourceRef="Activity_SendNotesNotification" targetRef="Gateway_PassThrough" />
+      </bpmn:subProcess>
+      <bpmn:subProcess id="Activity_DelayedCompletionProcess" name="Delayed completion process" triggeredByEvent="true">
+        <bpmn:sendTask id="Activity_SendDelayedCompletionNotification" name="Send Delayed completion notification" camunda:asyncBefore="true" camunda:delegateExpression="${sendDelayedCompletionNotificationServiceTask}">
+          <bpmn:incoming>Flow_1xj6raa</bpmn:incoming>
+          <bpmn:outgoing>Flow_07smghm</bpmn:outgoing>
+        </bpmn:sendTask>
+        <bpmn:endEvent id="EndEvent_DelayedCompletion" name="Delayed completion processed">
+          <bpmn:incoming>Flow_10e0ise</bpmn:incoming>
+        </bpmn:endEvent>
+        <bpmn:sequenceFlow id="Flow_1xj6raa" sourceRef="StartEvent_DelayedCompletion" targetRef="Activity_SendDelayedCompletionNotification" />
+        <bpmn:sequenceFlow id="Flow_07smghm" sourceRef="Activity_SendDelayedCompletionNotification" targetRef="Activity_UpdateKciAfterDelayedCompletionReceived" />
+        <bpmn:startEvent id="StartEvent_DelayedCompletion" name="Delayed completion received" isInterrupting="false">
+          <bpmn:outgoing>Flow_1xj6raa</bpmn:outgoing>
+          <bpmn:messageEventDefinition id="MessageEventDefinition_1g0zd5i" messageRef="Message_0ljdtn6" />
+        </bpmn:startEvent>
+        <bpmn:sequenceFlow id="Flow_10e0ise" sourceRef="Activity_UpdateKciAfterDelayedCompletionReceived" targetRef="EndEvent_DelayedCompletion" />
+        <bpmn:serviceTask id="Activity_UpdateKciAfterDelayedCompletionReceived" name="Update KCI" camunda:delegateExpression="${updateKciServiceTask}">
+          <bpmn:incoming>Flow_07smghm</bpmn:incoming>
+          <bpmn:outgoing>Flow_10e0ise</bpmn:outgoing>
+        </bpmn:serviceTask>
+      </bpmn:subProcess>
+      <bpmn:subProcess id="Activity_Appointment_Request_Process" name="Appointment Request process" triggeredByEvent="true">
+        <bpmn:endEvent id="EndEvent_AppointmentRequest" name="Appointment Request processed">
+          <bpmn:incoming>Flow_0c2e0ue</bpmn:incoming>
+        </bpmn:endEvent>
+        <bpmn:sendTask id="Activity_SendAppointmentRequestNotification" name="Send Appointment Request notification" camunda:asyncBefore="true" camunda:delegateExpression="${sendAppointmentRequestNotificationServiceTask}">
+          <bpmn:incoming>Flow_0zld7go</bpmn:incoming>
+          <bpmn:outgoing>Flow_0c2e0ue</bpmn:outgoing>
+        </bpmn:sendTask>
+        <bpmn:startEvent id="StartEvent_AppointmentRequest" name="Appointment Request received" isInterrupting="false">
+          <bpmn:outgoing>Flow_0tc8sre</bpmn:outgoing>
+          <bpmn:messageEventDefinition id="MessageEventDefinition_0k8urc5" messageRef="Message_0apzti7" />
+        </bpmn:startEvent>
+        <bpmn:serviceTask id="Activity_ProcessAppointmentRequestNotification" name="Process Appointment Request Notification" camunda:asyncBefore="true" camunda:delegateExpression="${processAppointmentRequestNotificationServiceTask}">
+          <bpmn:incoming>Flow_0tc8sre</bpmn:incoming>
+          <bpmn:outgoing>Flow_0zld7go</bpmn:outgoing>
+        </bpmn:serviceTask>
+        <bpmn:sequenceFlow id="Flow_0c2e0ue" sourceRef="Activity_SendAppointmentRequestNotification" targetRef="EndEvent_AppointmentRequest" />
+        <bpmn:sequenceFlow id="Flow_0tc8sre" sourceRef="StartEvent_AppointmentRequest" targetRef="Activity_ProcessAppointmentRequestNotification" />
+        <bpmn:sequenceFlow id="Flow_0zld7go" sourceRef="Activity_ProcessAppointmentRequestNotification" targetRef="Activity_SendAppointmentRequestNotification" />
+      </bpmn:subProcess>
+      <bpmn:subProcess id="Activity_CircuitIdProcess" name="Circuit ID process" triggeredByEvent="true">
+        <bpmn:sendTask id="Activity_SendCircuitIdNotification" name="Send Circuit ID notification" camunda:asyncBefore="true" camunda:delegateExpression="${sendCircuitIdNotificationServiceTask}">
+          <bpmn:incoming>Flow_1kvf90e</bpmn:incoming>
+          <bpmn:outgoing>Flow_028u2tm</bpmn:outgoing>
+        </bpmn:sendTask>
+        <bpmn:endEvent id="EndEvent_CircuitId" name="Circuit ID processed">
+          <bpmn:incoming>Flow_028u2tm</bpmn:incoming>
+        </bpmn:endEvent>
+        <bpmn:startEvent id="StartEvent_CircuitId" name="Circuit ID received" isInterrupting="false">
+          <bpmn:outgoing>Flow_1qzsnw5</bpmn:outgoing>
+          <bpmn:messageEventDefinition id="MessageEventDefinition_088s8rr" messageRef="Message_1ghw6ir" />
+        </bpmn:startEvent>
+        <bpmn:serviceTask id="Activity_ProcessCircuitIdNotification" name="Process Circuit ID" camunda:asyncBefore="true" camunda:delegateExpression="${processPbtdcCircuitIdNotification}">
+          <bpmn:incoming>Flow_1qzsnw5</bpmn:incoming>
+          <bpmn:outgoing>Flow_1kvf90e</bpmn:outgoing>
+        </bpmn:serviceTask>
+        <bpmn:sequenceFlow id="Flow_1kvf90e" sourceRef="Activity_ProcessCircuitIdNotification" targetRef="Activity_SendCircuitIdNotification" />
+        <bpmn:sequenceFlow id="Flow_028u2tm" sourceRef="Activity_SendCircuitIdNotification" targetRef="EndEvent_CircuitId" />
+        <bpmn:sequenceFlow id="Flow_1qzsnw5" sourceRef="StartEvent_CircuitId" targetRef="Activity_ProcessCircuitIdNotification" />
+      </bpmn:subProcess>
+      <bpmn:subProcess id="Activity_Order_Manager_Details_Process" name="Order Manager Details process" triggeredByEvent="true">
+        <bpmn:sendTask id="Activity_SendOMDConfirmationNotification" name="Send Confirmation notification" camunda:asyncBefore="true" camunda:delegateExpression="${sendConfirmationNotificationServiceTask}">
+          <bpmn:incoming>Flow_0eg9z39</bpmn:incoming>
+          <bpmn:outgoing>Flow_1bs3t4g</bpmn:outgoing>
+        </bpmn:sendTask>
+        <bpmn:endEvent id="EndEvent_OrderManagerDetailsRequest" name="Order Manager Details processed">
+          <bpmn:incoming>Flow_1bs3t4g</bpmn:incoming>
+        </bpmn:endEvent>
+        <bpmn:startEvent id="StartEvent_OrderManagerDetails" name="Order Manager Details received" isInterrupting="false">
+          <bpmn:outgoing>Flow_1x2kd3q</bpmn:outgoing>
+          <bpmn:messageEventDefinition id="MessageEventDefinition_09xprt6" messageRef="Message_0fq4y1w" />
+        </bpmn:startEvent>
+        <bpmn:serviceTask id="Activity_ProcessOrderManagerDetailsNotification" name="Process Order Manager Details" camunda:asyncBefore="true" camunda:delegateExpression="${processOrderManagerDetNotificationServiceTask}">
+          <bpmn:incoming>Flow_1x2kd3q</bpmn:incoming>
+          <bpmn:outgoing>Flow_0eg9z39</bpmn:outgoing>
+        </bpmn:serviceTask>
+        <bpmn:sequenceFlow id="Flow_0eg9z39" sourceRef="Activity_ProcessOrderManagerDetailsNotification" targetRef="Activity_SendOMDConfirmationNotification" />
+        <bpmn:sequenceFlow id="Flow_1bs3t4g" sourceRef="Activity_SendOMDConfirmationNotification" targetRef="EndEvent_OrderManagerDetailsRequest" />
+        <bpmn:sequenceFlow id="Flow_1x2kd3q" sourceRef="StartEvent_OrderManagerDetails" targetRef="Activity_ProcessOrderManagerDetailsNotification" />
+      </bpmn:subProcess>
+      <bpmn:intermediateCatchEvent id="Message_SupplierCompletedReceived" name="Complete received">
+        <bpmn:incoming>Flow_11qc47h</bpmn:incoming>
+        <bpmn:outgoing>Flow_1gph5gr</bpmn:outgoing>
+        <bpmn:messageEventDefinition id="MessageEventDefinition_0nbddjr" messageRef="Message_1kjdq2v" />
+      </bpmn:intermediateCatchEvent>
+      <bpmn:serviceTask id="Activity_ProcessCompleteNotification" name="Process Complete Notification" camunda:asyncBefore="true" camunda:delegateExpression="${processCompleteNotificationServiceTask}">
+        <bpmn:incoming>Flow_1gph5gr</bpmn:incoming>
+        <bpmn:outgoing>Flow_1ull5ky</bpmn:outgoing>
+      </bpmn:serviceTask>
+      <bpmn:endEvent id="EndEvent_SupplierProvisioningCompleted" name="Provisioning completed">
+        <bpmn:incoming>Flow_1ull5ky</bpmn:incoming>
+      </bpmn:endEvent>
+      <bpmn:sequenceFlow id="Flow_1gph5gr" sourceRef="Message_SupplierCompletedReceived" targetRef="Activity_ProcessCompleteNotification" />
+      <bpmn:sequenceFlow id="Flow_1ull5ky" sourceRef="Activity_ProcessCompleteNotification" targetRef="EndEvent_SupplierProvisioningCompleted" />
+      <bpmn:sequenceFlow id="Flow_11qc47h" sourceRef="Start_Event_SupplierComplete" targetRef="Message_SupplierCompletedReceived" />
+      <bpmn:subProcess id="Activity_GLANIDUpdationProcess" name="GLAN ID updation process" triggeredByEvent="true">
+        <bpmn:startEvent id="StartEvent_GlanIdUpdation" name="GLAN ID Updation received" isInterrupting="false">
+          <bpmn:outgoing>Flow_1n6rt24</bpmn:outgoing>
+          <bpmn:messageEventDefinition id="MessageEventDefinition_0sl9mh6" messageRef="Message_1n8jj7c" />
+        </bpmn:startEvent>
+        <bpmn:endEvent id="EndEvent_GlanIdUpdation" name="GLAN ID Updation processed">
+          <bpmn:incoming>Flow_0ez7so3</bpmn:incoming>
+        </bpmn:endEvent>
+        <bpmn:serviceTask id="Activity_ProcessGlanIdUpdationNotification" name="Process GLAN ID Updation Notification" camunda:asyncBefore="true" camunda:delegateExpression="${processGlanIdUpdationNotificationServiceTask}">
+          <bpmn:incoming>Flow_1n6rt24</bpmn:incoming>
+          <bpmn:outgoing>Flow_0ez7so3</bpmn:outgoing>
+        </bpmn:serviceTask>
+        <bpmn:sequenceFlow id="Flow_0ez7so3" sourceRef="Activity_ProcessGlanIdUpdationNotification" targetRef="EndEvent_GlanIdUpdation" />
+        <bpmn:sequenceFlow id="Flow_1n6rt24" sourceRef="StartEvent_GlanIdUpdation" targetRef="Activity_ProcessGlanIdUpdationNotification" />
+      </bpmn:subProcess>
+    </bpmn:subProcess>
+  </bpmn:process>
+  <bpmn:error id="Error_1pawfxq" name="Err_QuoteInvalid" errorCode="QUOTE_INVALID" />
+  <bpmn:error id="Error_1hd7hvw" name="Err_UserUnauthorized" errorCode="USER_UNAUTHORIZED" />
+  <bpmn:error id="Error_0ds5pqm" name="Err_DuplicateOrderFound" errorCode="DUPLICATE_ORDER_FOUND" />
+  <bpmn:error id="Error_07dmypz" name="Err_EtherwayNotBelongToOao" errorCode="ETHERWAY_NOT_BELONG_TO_OAO" />
+  <bpmn:error id="Error_18zljkk" name="Err_OrderInvalid" errorCode="ORDER_INVALID" />
+  <bpmn:error id="Error_0v23itv" name="Err_SupplierOrderRejected" errorCode="SUPPLIER_ORDER_REJECTED" />
+  <bpmn:message id="Message_00joq4f" name="Msg_SupplierUndeliverable" />
+  <bpmn:message id="Message_1kjdq2v" name="Msg_SupplierCompleted" />
+  <bpmn:message id="Message_18gx72p" name="Msg_SupplierAccept" />
+  <bpmn:message id="Message_09u2ldf" name="Msg_SupplierReject" />
+  <bpmn:message id="Message_16di3gd" name="Msg_SupplierDelayedValidation" />
+  <bpmn:message id="Message_0eb1isj" name="Msg_SupplierStatus" />
+  <bpmn:message id="Message_1ba92ev" name="Msg_SupplierConfirmation" />
+  <bpmn:message id="Message_1z0y7ky" name="Msg_SupplierCustomerDelayStart" />
+  <bpmn:message id="Message_1t5hwor" name="Msg_SupplierCustomerDelayEnd" />
+  <bpmn:message id="Message_09d61x4" name="Msg_SupplierNotes" />
+  <bpmn:message id="Message_0ljdtn6" name="Msg_SupplierDelayedCompletion" />
+  <bpmn:message id="Message_0apzti7" name="Msg_SupplierAppointmentRequest" />
+  <bpmn:message id="Message_1ghw6ir" name="Msg_SupplierCircuitId" />
+  <bpmn:message id="Message_0gry0tv" />
+  <bpmn:message id="Message_0fq4y1w" name="Msg_SupplierOrderManagerDetails" />
+  <bpmn:message id="Message_1n8jj7c" name="Msg_SupplierGlanIdUpdation" />
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_0guoem4">
+      <bpmndi:BPMNShape id="Participant_1ljex7n_di" bpmnElement="Participant_1ljex7n" isHorizontal="true">
+        <dc:Bounds x="160" y="79" width="4920" height="2021" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_0dkrg2y_di" bpmnElement="Flow_0dkrg2y">
+        <di:waypoint x="3962" y="902" />
+        <di:waypoint x="4082" y="902" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_167cdyi_di" bpmnElement="Flow_167cdyi">
+        <di:waypoint x="2470" y="380" />
+        <di:waypoint x="2680" y="380" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0w9sovy_di" bpmnElement="Flow_0w9sovy">
+        <di:waypoint x="4980" y="760" />
+        <di:waypoint x="5012" y="760" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1dbbnd1_di" bpmnElement="Flow_1dbbnd1">
+        <di:waypoint x="4830" y="760" />
+        <di:waypoint x="4880" y="760" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1va0210_di" bpmnElement="Flow_1va0210">
+        <di:waypoint x="4660" y="760" />
+        <di:waypoint x="4730" y="760" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0uqw97x_di" bpmnElement="Flow_0uqw97x">
+        <di:waypoint x="4497" y="760" />
+        <di:waypoint x="4560" y="760" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1n2uguj_di" bpmnElement="Flow_1n2uguj">
+        <di:waypoint x="4497" y="605" />
+        <di:waypoint x="4590" y="605" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0g3h4ik_di" bpmnElement="Flow_0g3h4ik">
+        <di:waypoint x="4690" y="605" />
+        <di:waypoint x="4800" y="605" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1mltfed_di" bpmnElement="Flow_1mltfed">
+        <di:waypoint x="4900" y="605" />
+        <di:waypoint x="5012" y="605" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0bmy69p_di" bpmnElement="Flow_0bmy69p">
+        <di:waypoint x="4900" y="390" />
+        <di:waypoint x="5012" y="390" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1p57yra_di" bpmnElement="Flow_1p57yra">
+        <di:waypoint x="4690" y="390" />
+        <di:waypoint x="4800" y="390" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0jh2us6_di" bpmnElement="Flow_0jh2us6">
+        <di:waypoint x="4290" y="415" />
+        <di:waypoint x="4290" y="480" />
+        <di:waypoint x="4640" y="480" />
+        <di:waypoint x="4640" y="430" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="4459" y="462" width="13" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_063o3hs_di" bpmnElement="Flow_063o3hs">
+        <di:waypoint x="4500" y="390" />
+        <di:waypoint x="4590" y="390" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1mpym5a_di" bpmnElement="Flow_1mpym5a">
+        <di:waypoint x="4315" y="390" />
+        <di:waypoint x="4400" y="390" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="4349" y="372" width="17" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_06nkov8_di" bpmnElement="Flow_06nkov8">
+        <di:waypoint x="2488" y="691" />
+        <di:waypoint x="2572" y="691" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0cwlkdn_di" bpmnElement="Flow_0cwlkdn">
+        <di:waypoint x="630" y="641" />
+        <di:waypoint x="630" y="750" />
+        <di:waypoint x="782" y="750" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_057vnfk_di" bpmnElement="Flow_057vnfk">
+        <di:waypoint x="258" y="390" />
+        <di:waypoint x="310" y="390" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0op0ewe_di" bpmnElement="Flow_0op0ewe">
+        <di:waypoint x="1420" y="486" />
+        <di:waypoint x="1530" y="486" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1hrh0s2_di" bpmnElement="Flow_1hrh0s2">
+        <di:waypoint x="3944" y="390" />
+        <di:waypoint x="4265" y="390" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Event_1q6vgmx_di" bpmnElement="IntermediateEvent_OrderValidationToRejected">
+        <dc:Bounds x="782" y="732" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="773" y="775" width="55" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0fqumtv_di" bpmnElement="Activity_OrderValidationProcess" isExpanded="true">
+        <dc:Bounds x="310" y="250" width="1110" height="373" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1wet7pk_di" bpmnElement="Flow_1wet7pk">
+        <di:waypoint x="1280" y="390" />
+        <di:waypoint x="1352" y="390" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1vxbh6s_di" bpmnElement="Flow_1vxbh6s">
+        <di:waypoint x="1080" y="448" />
+        <di:waypoint x="1080" y="520" />
+        <di:waypoint x="1222" y="520" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1l3k0m7_di" bpmnElement="Flow_1l3k0m7">
+        <di:waypoint x="1130" y="390" />
+        <di:waypoint x="1180" y="390" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0puufam_di" bpmnElement="Flow_0puufam">
+        <di:waypoint x="920" y="365" />
+        <di:waypoint x="920" y="300" />
+        <di:waypoint x="1230" y="300" />
+        <di:waypoint x="1230" y="350" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1069" y="282" width="13" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0jnabq7_di" bpmnElement="Flow_0jnabq7">
+        <di:waypoint x="945" y="390" />
+        <di:waypoint x="1030" y="390" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="979" y="372" width="17" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0avmc91_di" bpmnElement="Flow_0avmc91">
+        <di:waypoint x="810" y="390" />
+        <di:waypoint x="895" y="390" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0llbo2i_di" bpmnElement="Flow_0llbo2i">
+        <di:waypoint x="760" y="448" />
+        <di:waypoint x="760" y="520" />
+        <di:waypoint x="1222" y="520" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0ielcsu_di" bpmnElement="Flow_0ielcsu">
+        <di:waypoint x="610" y="448" />
+        <di:waypoint x="610" y="520" />
+        <di:waypoint x="1222" y="520" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0izit2o_di" bpmnElement="Flow_0izit2o">
+        <di:waypoint x="560" y="448" />
+        <di:waypoint x="560" y="520" />
+        <di:waypoint x="1222" y="520" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1dlgjrp_di" bpmnElement="Flow_1dlgjrp">
+        <di:waypoint x="630" y="390" />
+        <di:waypoint x="710" y="390" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1mxwpii_di" bpmnElement="Flow_1mxwpii">
+        <di:waypoint x="398" y="390" />
+        <di:waypoint x="530" y="390" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Event_1825qdf_di" bpmnElement="StartEvent_orderValidation">
+        <dc:Bounds x="362" y="372" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1rwdvsq_di" bpmnElement="Activity_CheckQuote">
+        <dc:Bounds x="530" y="350" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0hf2r97_di" bpmnElement="Activity_CheckOrderDuplicate">
+        <dc:Bounds x="710" y="350" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1keir26_di" bpmnElement="Gateway_OrderValidationWsipt" isMarkerVisible="true">
+        <dc:Bounds x="895" y="365" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="901" y="422" width="40" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1k2yn2o_di" bpmnElement="Activity_CheckInventory">
+        <dc:Bounds x="1030" y="350" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1e4uc9m_di" bpmnElement="EndEvent_OrderValid">
+        <dc:Bounds x="1352" y="372" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1344" y="415" width="54" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1m03xel_di" bpmnElement="EndEvent_OrderInvalid">
+        <dc:Bounds x="1222" y="502" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1209" y="545" width="63" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1aho3rw_di" bpmnElement="Activity_SendPOANotification">
+        <dc:Bounds x="1180" y="350" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_19mpi20_di" bpmnElement="BoundaryEvent_EtherwayNotBelongToOao">
+        <dc:Bounds x="1062" y="412" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1094" y="450" width="74" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0rxyfbo_di" bpmnElement="BoundaryEvent_DuplicateOrderFound">
+        <dc:Bounds x="742" y="412" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="782" y="436" width="76" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1ajc6yi_di" bpmnElement="BoundaryEvent_UserUnauthorized">
+        <dc:Bounds x="592" y="412" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="615" y="455" width="90" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0yhzd6h_di" bpmnElement="BoundaryEvent_QuoteInvalid">
+        <dc:Bounds x="542" y="412" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="487" y="443" width="65" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_PbtdcOrder">
+        <dc:Bounds x="222" y="372" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="206" y="415" width="68" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_02t16c8_di" bpmnElement="Activity_CreateAsset">
+        <dc:Bounds x="4400" y="350" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_05owakb_di" bpmnElement="Gateway_PbtdcWsipt" isMarkerVisible="true">
+        <dc:Bounds x="4265" y="365" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="4270" y="341" width="40" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1p4sgxy_di" bpmnElement="Activity_SendCompleteNotification">
+        <dc:Bounds x="4590" y="350" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_18s5smf_di" bpmnElement="Activity_OrderStatusUpdateCompleted">
+        <dc:Bounds x="4800" y="350" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0bxo6xx_di" bpmnElement="EndEvent_PbtdcOrderCompleted">
+        <dc:Bounds x="5012" y="372" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="4990" y="415" width="82" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_041erqu_di" bpmnElement="EndEvent_PbtdcOrderRejected">
+        <dc:Bounds x="5012" y="587" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="4995" y="630" width="71" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0506m33_di" bpmnElement="Activity_OrderStatusUpdateRejected">
+        <dc:Bounds x="4800" y="565" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_07vdzmn_di" bpmnElement="Activity_SendRejectNotification">
+        <dc:Bounds x="4590" y="565" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1wuzstr_di" bpmnElement="IntermediateEvent_Rejected">
+        <dc:Bounds x="4461" y="587" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="4457" y="630" width="44" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1q8z7d5_di" bpmnElement="IntermediateEvent_Undeliverable">
+        <dc:Bounds x="4461" y="742" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="4445" y="785" width="68" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_09itdjz_di" bpmnElement="Activity_PbtdcProcessUndeliverable">
+        <dc:Bounds x="4560" y="720" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_12skem1_di" bpmnElement="Activity_SendUndeliverableNotification">
+        <dc:Bounds x="4730" y="720" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1nemv88_di" bpmnElement="Activity_OrderStatusUpdateUndeliverable">
+        <dc:Bounds x="4880" y="720" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1v6g1t7_di" bpmnElement="EndEvent_PbtdcOrderUndeliverable">
+        <dc:Bounds x="5012" y="742" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="4986" y="785" width="89" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_10fmfua_di" bpmnElement="Activity_SupplierAcceptProcess" isExpanded="true">
+        <dc:Bounds x="1530" y="251" width="940" height="640" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_0j87yp1_di" bpmnElement="Flow_0j87yp1">
+        <di:waypoint x="1978" y="501" />
+        <di:waypoint x="2212" y="501" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0kz34je_di" bpmnElement="Flow_0kz34je">
+        <di:waypoint x="2300" y="391" />
+        <di:waypoint x="2382" y="391" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1rtbids_di" bpmnElement="Flow_1rtbids">
+        <di:waypoint x="2140" y="391" />
+        <di:waypoint x="2200" y="391" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1i4bww8_di" bpmnElement="Flow_1i4bww8">
+        <di:waypoint x="1978" y="391" />
+        <di:waypoint x="2040" y="391" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0x7jn3a_di" bpmnElement="Flow_0x7jn3a">
+        <di:waypoint x="1850" y="416" />
+        <di:waypoint x="1850" y="501" />
+        <di:waypoint x="1942" y="501" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_06m6vxw_di" bpmnElement="Flow_06m6vxw">
+        <di:waypoint x="1875" y="391" />
+        <di:waypoint x="1942" y="391" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1plj0sa_di" bpmnElement="Flow_1plj0sa">
+        <di:waypoint x="1760" y="391" />
+        <di:waypoint x="1825" y="391" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_01idgwu_di" bpmnElement="Flow_01idgwu">
+        <di:waypoint x="1608" y="391" />
+        <di:waypoint x="1660" y="391" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Event_19t8nxu_di" bpmnElement="StartEvent_SupplierProvisioning">
+        <dc:Bounds x="1572" y="373" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1561" y="416" width="60" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_16jeiij_di" bpmnElement="Activity_SendAcceptNotification">
+        <dc:Bounds x="2200" y="351" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_11sv16b_di" bpmnElement="Activity_SendOrder">
+        <dc:Bounds x="1660" y="351" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0p38s0k_di" bpmnElement="Gateway_SupplierProvisioningAcceptOrReject">
+        <dc:Bounds x="1825" y="366" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1809" y="336" width="86" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_18pz5rc_di" bpmnElement="Message_SupplierAcceptReceived">
+        <dc:Bounds x="1942" y="373" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1921" y="416" width="78" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1rg6kfm_di" bpmnElement="Message_SupplierRejectReceived">
+        <dc:Bounds x="1942" y="483" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1923" y="526" width="76" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_133uhn6_di" bpmnElement="EndEvent_SupplierProvisioningRejected">
+        <dc:Bounds x="2212" y="483" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2195" y="526" width="71" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1hcfr17_di" bpmnElement="Activity_ProcessAcceptNotification">
+        <dc:Bounds x="2040" y="351" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1t1lcyx_di" bpmnElement="EndEvent_SupplierAcceptCompleted">
+        <dc:Bounds x="2382" y="373" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2356" y="416" width="89" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1o7rajz_di" bpmnElement="Activity_DelayedValidationProcess" isExpanded="true">
+        <dc:Bounds x="1580" y="570" width="350" height="200" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_0tr6iu1_di" bpmnElement="Flow_0tr6iu1">
+        <di:waypoint x="1810" y="670" />
+        <di:waypoint x="1872" y="670" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0fhdpza_di" bpmnElement="Flow_0fhdpza">
+        <di:waypoint x="1656" y="670" />
+        <di:waypoint x="1710" y="670" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Event_0ak2q0q_di" bpmnElement="StartEvent_DelayedValidation">
+        <dc:Bounds x="1620" y="652" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1593" y="695" width="90" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0p8kq9f_di" bpmnElement="Activity_SendDelayedValidationNotification">
+        <dc:Bounds x="1710" y="630" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1kjfuio_di" bpmnElement="EndEvent_DelayedValidation">
+        <dc:Bounds x="1872" y="652" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1866" y="695" width="51" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1s9e9zg_di" bpmnElement="Activity_GLANIDUpdationBeforeAcceptProcess" isExpanded="true">
+        <dc:Bounds x="1970" y="571" width="350" height="200" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1y4j4me_di" bpmnElement="Flow_1y4j4me">
+        <di:waypoint x="2046" y="671" />
+        <di:waypoint x="2090" y="671" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1gacdai_di" bpmnElement="Flow_1gacdai">
+        <di:waypoint x="2190" y="671" />
+        <di:waypoint x="2262" y="671" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Event_1rpgbwp_di" bpmnElement="StartEvent_GlanIdUpdationBeforeAccept">
+        <dc:Bounds x="2010" y="653" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1985" y="696" width="89" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1z0nucu_di" bpmnElement="EndEvent_GlanIdUpdationBeforeAccept">
+        <dc:Bounds x="2262" y="653" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2259" y="696" width="51" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1b987a5_di" bpmnElement="Activity_ProcessGlanIdUpdationNotificationBeforeAccept">
+        <dc:Bounds x="2090" y="631" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0xhgauo_di" bpmnElement="IntermediateEvent_SupplierOrderToRejected">
+        <dc:Bounds x="2572" y="673" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2564" y="716" width="53" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_06mhbgl_di" bpmnElement="Activity_SupplierProvisioningProcess" isExpanded="true">
+        <dc:Bounds x="2680" y="250" width="1264" height="1580" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_11qc47h_di" bpmnElement="Flow_11qc47h">
+        <di:waypoint x="2756" y="380" />
+        <di:waypoint x="2826" y="380" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1ull5ky_di" bpmnElement="Flow_1ull5ky">
+        <di:waypoint x="3032" y="380" />
+        <di:waypoint x="3114" y="380" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1gph5gr_di" bpmnElement="Flow_1gph5gr">
+        <di:waypoint x="2862" y="380" />
+        <di:waypoint x="2932" y="380" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Event_1hwvzsg_di" bpmnElement="Start_Event_SupplierComplete">
+        <dc:Bounds x="2720" y="362" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2696" y="405" width="86" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0hsh81q_di" bpmnElement="Activity_StatusProcess" isExpanded="true">
+        <dc:Bounds x="3094" y="480" width="770" height="200" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_19iiskq_di" bpmnElement="Flow_19iiskq">
+        <di:waypoint x="3162" y="550" />
+        <di:waypoint x="3214" y="550" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_08gy0qa_di" bpmnElement="Flow_08gy0qa">
+        <di:waypoint x="3314" y="550" />
+        <di:waypoint x="3379" y="550" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1ankg75_di" bpmnElement="Flow_1ankg75">
+        <di:waypoint x="3429" y="550" />
+        <di:waypoint x="3494" y="550" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="3451" y="532" width="13" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1pttc9u_di" bpmnElement="Flow_1pttc9u">
+        <di:waypoint x="3699" y="550" />
+        <di:waypoint x="3796" y="550" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_11pfwb9_di" bpmnElement="Flow_11pfwb9">
+        <di:waypoint x="3404" y="575" />
+        <di:waypoint x="3404" y="650" />
+        <di:waypoint x="3674" y="650" />
+        <di:waypoint x="3674" y="575" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="3449" y="625" width="17" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_059oi1c_di" bpmnElement="Flow_059oi1c">
+        <di:waypoint x="3594" y="550" />
+        <di:waypoint x="3649" y="550" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Event_16c06lp_di" bpmnElement="StartEvent_Status">
+        <dc:Bounds x="3126" y="532" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="3107" y="575" width="76" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1wkxn6t_di" bpmnElement="Activity_SendStatusNotification">
+        <dc:Bounds x="3494" y="510" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_15gctbv_di" bpmnElement="Gateway_SupplierProviStatusInternal" isMarkerVisible="true">
+        <dc:Bounds x="3379" y="525" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="3384" y="508" width="43" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_10exil8_di" bpmnElement="EndEvent_Status">
+        <dc:Bounds x="3796" y="532" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="3772" y="508" width="85" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_18ajp63_di" bpmnElement="Gateway_SupplierProviStatusInternalJoin" isMarkerVisible="true">
+        <dc:Bounds x="3649" y="525" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_132c8je_di" bpmnElement="Activity_ProcessStatusNotification">
+        <dc:Bounds x="3214" y="510" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_09mcuvr_di" bpmnElement="Activity_ConfirmationProcess" isExpanded="true">
+        <dc:Bounds x="2702" y="720" width="560" height="200" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_0xox3mj_di" bpmnElement="Flow_0xox3mj">
+        <di:waypoint x="3122" y="820" />
+        <di:waypoint x="3184" y="820" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_00gpmtt_di" bpmnElement="Flow_00gpmtt">
+        <di:waypoint x="2952" y="820" />
+        <di:waypoint x="3022" y="820" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_04f8fex_di" bpmnElement="Flow_04f8fex">
+        <di:waypoint x="2778" y="820" />
+        <di:waypoint x="2852" y="820" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Event_168bims_di" bpmnElement="StartEvent_Confirmation">
+        <dc:Bounds x="2742" y="802" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2729" y="845" width="63" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0chg1i6_di" bpmnElement="Activity_SendConfirmationNotification">
+        <dc:Bounds x="3022" y="780" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0rkgs1t_di" bpmnElement="EndEvent_Confirmation">
+        <dc:Bounds x="3184" y="802" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="3171" y="845" width="63" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0jdj1x0_di" bpmnElement="Activity_ProcessConfirmationNotification">
+        <dc:Bounds x="2852" y="780" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0gp77sg_di" bpmnElement="Activity_CustomerDelayStartProcess" isExpanded="true">
+        <dc:Bounds x="3290" y="720" width="550" height="200" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1yl9nfi_di" bpmnElement="Flow_1yl9nfi">
+        <di:waypoint x="3520" y="820" />
+        <di:waypoint x="3570" y="820" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0fd7p01_di" bpmnElement="Flow_0fd7p01">
+        <di:waypoint x="3670" y="820" />
+        <di:waypoint x="3752" y="820" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_12aoagj_di" bpmnElement="Flow_12aoagj">
+        <di:waypoint x="3366" y="820" />
+        <di:waypoint x="3420" y="820" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Event_0loekem_di" bpmnElement="StartEvent_CustomerDelayStart">
+        <dc:Bounds x="3330" y="802" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="3309" y="845" width="78" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0pq92ww_di" bpmnElement="Activity_SendCustomerDelayStartNotification">
+        <dc:Bounds x="3570" y="780" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_03muxty_di" bpmnElement="EndEvent_CustomerDelayStart">
+        <dc:Bounds x="3752" y="802" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="3731" y="845" width="78" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0j5p80c_di" bpmnElement="Activity_ProcessCustomerDelayStartNotification">
+        <dc:Bounds x="3420" y="780" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1on3fz8_di" bpmnElement="Activity_CustomerDelayEndProcess" isExpanded="true">
+        <dc:Bounds x="2704" y="960" width="490" height="200" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_0ydr7wk_di" bpmnElement="Flow_0ydr7wk">
+        <di:waypoint x="2924" y="1060" />
+        <di:waypoint x="2984" y="1060" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0v63rhr_di" bpmnElement="Flow_0v63rhr">
+        <di:waypoint x="3084" y="1060" />
+        <di:waypoint x="3126" y="1060" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0iypuv5_di" bpmnElement="Flow_0iypuv5">
+        <di:waypoint x="2780" y="1060" />
+        <di:waypoint x="2824" y="1060" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Activity_0ivpvrr_di" bpmnElement="Activity_SendCustomerDelayEndNotification">
+        <dc:Bounds x="2984" y="1020" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1n9jmhl_di" bpmnElement="EndEvent_CustomerDelayEnd">
+        <dc:Bounds x="3126" y="1042" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="3015" y="1116" width="78" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1qr94qz_di" bpmnElement="StartEvent_CustomerDelayEnd">
+        <dc:Bounds x="2744" y="1042" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2723" y="1085" width="78" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_080d806_di" bpmnElement="Activity_ProcessCustomerDelayEndNotification">
+        <dc:Bounds x="2824" y="1020" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1jh0vzz_di" bpmnElement="Activity_NotesProcess" isExpanded="true">
+        <dc:Bounds x="3224" y="960" width="647" height="370" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_13m1zqm_di" bpmnElement="Flow_13m1zqm">
+        <di:waypoint x="3574" y="1230" />
+        <di:waypoint x="3574" y="1155" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0qd8ymb_di" bpmnElement="Flow_0qd8ymb">
+        <di:waypoint x="3599" y="1130" />
+        <di:waypoint x="3679" y="1130" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0axo5fh_di" bpmnElement="Flow_0axo5fh">
+        <di:waypoint x="3499" y="1130" />
+        <di:waypoint x="3549" y="1130" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="3516" y="1112" width="18" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0wpzdhm_di" bpmnElement="Flow_0wpzdhm">
+        <di:waypoint x="3474" y="1155" />
+        <di:waypoint x="3474" y="1270" />
+        <di:waypoint x="3524" y="1270" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="3493" y="1252" width="15" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0b5bxlz_di" bpmnElement="Flow_0b5bxlz">
+        <di:waypoint x="3729" y="1130" />
+        <di:waypoint x="3796" y="1130" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="3756" y="1112" width="15" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0pyv7uh_di" bpmnElement="Flow_0pyv7uh">
+        <di:waypoint x="3754" y="1270" />
+        <di:waypoint x="3814" y="1270" />
+        <di:waypoint x="3814" y="1148" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1ag9vtj_di" bpmnElement="Flow_1ag9vtj">
+        <di:waypoint x="3704" y="1155" />
+        <di:waypoint x="3704" y="1230" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="3711" y="1215" width="18" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0k2hl39_di" bpmnElement="Flow_0k2hl39">
+        <di:waypoint x="3414" y="1130" />
+        <di:waypoint x="3449" y="1130" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_15ru4jb_di" bpmnElement="Flow_15ru4jb">
+        <di:waypoint x="3282" y="1130" />
+        <di:waypoint x="3314" y="1130" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Activity_1krndos_di" bpmnElement="Activity_SendNotesNotification">
+        <dc:Bounds x="3524" y="1230" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0bt78wd_di" bpmnElement="StartEvent_Notes">
+        <dc:Bounds x="3246" y="1112" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="3227" y="1155" width="74" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_02u2ycp_di" bpmnElement="Activity_ProcessNotesNotification">
+        <dc:Bounds x="3314" y="1090" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1v4y0bv_di" bpmnElement="Gateway_SupplierProviDeliveryOnTrackChanged" isMarkerVisible="true">
+        <dc:Bounds x="3679" y="1105" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="3665" y="1076" width="81" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_10qi4od_di" bpmnElement="Activity_SendCFNotificationAfterNotesNotification">
+        <dc:Bounds x="3654" y="1230" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1ahkbbl_di" bpmnElement="EndEvent_Notes">
+        <dc:Bounds x="3796" y="1112" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="3772" y="1088" width="83" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0pdbfin_di" bpmnElement="Gateway_SupplierProviNotesTextEmpty" isMarkerVisible="true">
+        <dc:Bounds x="3449" y="1105" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="3431" y="1081" width="85" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1fhg0xi_di" bpmnElement="Gateway_PassThrough" isMarkerVisible="true">
+        <dc:Bounds x="3549" y="1105" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="3540" y="1075" width="69" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1hs7wbr_di" bpmnElement="Activity_DelayedCompletionProcess" isExpanded="true">
+        <dc:Bounds x="2702" y="1360" width="560" height="200" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_10e0ise_di" bpmnElement="Flow_10e0ise">
+        <di:waypoint x="3122" y="1460" />
+        <di:waypoint x="3184" y="1460" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_07smghm_di" bpmnElement="Flow_07smghm">
+        <di:waypoint x="2932" y="1460" />
+        <di:waypoint x="3022" y="1460" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1xj6raa_di" bpmnElement="Flow_1xj6raa">
+        <di:waypoint x="2778" y="1460" />
+        <di:waypoint x="2832" y="1460" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Activity_0ufybex_di" bpmnElement="Activity_SendDelayedCompletionNotification">
+        <dc:Bounds x="2832" y="1420" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0rmyfp0_di" bpmnElement="EndEvent_DelayedCompletion">
+        <dc:Bounds x="3184" y="1442" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="3176" y="1485" width="54" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0l0s7t1_di" bpmnElement="StartEvent_DelayedCompletion">
+        <dc:Bounds x="2742" y="1442" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2733" y="1485" width="54" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0zmjhud_di" bpmnElement="Activity_UpdateKciAfterDelayedCompletionReceived">
+        <dc:Bounds x="3022" y="1420" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_12beh0c_di" bpmnElement="Activity_Appointment_Request_Process" isExpanded="true">
+        <dc:Bounds x="3309" y="1360" width="560" height="200" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_0zld7go_di" bpmnElement="Flow_0zld7go">
+        <di:waypoint x="3559" y="1460" />
+        <di:waypoint x="3619" y="1460" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0tc8sre_di" bpmnElement="Flow_0tc8sre">
+        <di:waypoint x="3367" y="1460" />
+        <di:waypoint x="3459" y="1460" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0c2e0ue_di" bpmnElement="Flow_0c2e0ue">
+        <di:waypoint x="3719" y="1460" />
+        <di:waypoint x="3791" y="1460" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Event_0smaa7v_di" bpmnElement="EndEvent_AppointmentRequest">
+        <dc:Bounds x="3791" y="1442" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="3780" y="1485" width="62" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0cl0nnr_di" bpmnElement="Activity_SendAppointmentRequestNotification">
+        <dc:Bounds x="3619" y="1420" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1h58a6m_di" bpmnElement="StartEvent_AppointmentRequest">
+        <dc:Bounds x="3331" y="1442" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="3307" y="1485" width="86" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_191tecd_di" bpmnElement="Activity_ProcessAppointmentRequestNotification">
+        <dc:Bounds x="3459" y="1420" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0gyzzv8_di" bpmnElement="Activity_CircuitIdProcess" isExpanded="true">
+        <dc:Bounds x="2704" y="1600" width="490" height="200" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1qzsnw5_di" bpmnElement="Flow_1qzsnw5">
+        <di:waypoint x="2780" y="1700" />
+        <di:waypoint x="2824" y="1700" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_028u2tm_di" bpmnElement="Flow_028u2tm">
+        <di:waypoint x="3084" y="1700" />
+        <di:waypoint x="3126" y="1700" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1kvf90e_di" bpmnElement="Flow_1kvf90e">
+        <di:waypoint x="2924" y="1700" />
+        <di:waypoint x="2984" y="1700" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Activity_0wswbnx_di" bpmnElement="Activity_SendCircuitIdNotification">
+        <dc:Bounds x="2984" y="1660" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0phql0x_di" bpmnElement="EndEvent_CircuitId">
+        <dc:Bounds x="3126" y="1682" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="3120" y="1725" width="51" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0b0ptx7_di" bpmnElement="StartEvent_CircuitId">
+        <dc:Bounds x="2744" y="1682" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2719" y="1725" width="90" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1u5x1o2_di" bpmnElement="Activity_ProcessCircuitIdNotification">
+        <dc:Bounds x="2824" y="1660" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1f9fwxd_di" bpmnElement="Activity_Order_Manager_Details_Process" isExpanded="true">
+        <dc:Bounds x="3303" y="1600" width="490" height="200" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1x2kd3q_di" bpmnElement="Flow_1x2kd3q">
+        <di:waypoint x="3379" y="1700" />
+        <di:waypoint x="3423" y="1700" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1bs3t4g_di" bpmnElement="Flow_1bs3t4g">
+        <di:waypoint x="3683" y="1700" />
+        <di:waypoint x="3725" y="1700" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0eg9z39_di" bpmnElement="Flow_0eg9z39">
+        <di:waypoint x="3523" y="1700" />
+        <di:waypoint x="3583" y="1700" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Activity_06ss549_di" bpmnElement="Activity_SendOMDConfirmationNotification">
+        <dc:Bounds x="3583" y="1660" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0mwmugh_di" bpmnElement="EndEvent_OrderManagerDetailsRequest">
+        <dc:Bounds x="3725" y="1682" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="3701" y="1725" width="88" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_009shsw_di" bpmnElement="StartEvent_OrderManagerDetails">
+        <dc:Bounds x="3343" y="1682" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="3326" y="1725" width="79" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1johuyu_di" bpmnElement="Activity_ProcessOrderManagerDetailsNotification">
+        <dc:Bounds x="3423" y="1660" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0bxkwek_di" bpmnElement="Message_SupplierCompletedReceived">
+        <dc:Bounds x="2826" y="362" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2820" y="405" width="48" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0ig38zq_di" bpmnElement="Activity_ProcessCompleteNotification">
+        <dc:Bounds x="2932" y="340" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_15n8mwy_di" bpmnElement="EndEvent_SupplierProvisioningCompleted">
+        <dc:Bounds x="3114" y="362" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="3103" y="405" width="60" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_07ozwjx_di" bpmnElement="Activity_GLANIDUpdationProcess" isExpanded="true">
+        <dc:Bounds x="2704" y="480" width="350" height="200" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1n6rt24_di" bpmnElement="Flow_1n6rt24">
+        <di:waypoint x="2780" y="580" />
+        <di:waypoint x="2824" y="580" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0ez7so3_di" bpmnElement="Flow_0ez7so3">
+        <di:waypoint x="2924" y="580" />
+        <di:waypoint x="2996" y="580" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Event_0jbqf2u_di" bpmnElement="StartEvent_GlanIdUpdation">
+        <dc:Bounds x="2744" y="562" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2719" y="605" width="89" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1kockwm_di" bpmnElement="EndEvent_GlanIdUpdation">
+        <dc:Bounds x="2996" y="562" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2993" y="605" width="51" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0xccu7r_di" bpmnElement="Activity_ProcessGlanIdUpdationNotification">
+        <dc:Bounds x="2824" y="540" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0ikadkg_di" bpmnElement="IntermediateEvent_SupplierOrderToUndeliverable">
+        <dc:Bounds x="4082" y="884" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="4060" y="927" width="81" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1ftlj4v_di" bpmnElement="BoundaryEvent_SupplierOrderUndeliverable">
+        <dc:Bounds x="3926" y="884" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="3950" y="848" width="68" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_01lz17t_di" bpmnElement="BoundaryEvent_SupplierOrderRejected">
+        <dc:Bounds x="2452" y="673" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2478" y="654" width="44" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0ts0gtx_di" bpmnElement="BoundaryEvent_OrderInvalid">
+        <dc:Bounds x="612" y="605" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="645" y="648" width="32" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

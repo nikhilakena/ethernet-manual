@@ -1,0 +1,54 @@
+<xs:schema targetNamespace="http://wag.btireland.ie/WAG_WS/"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:wag="http://wag.btireland.ie/WAG_WS/"
+           xmlns:schema="http://wag.btireland.ie/WAG_WS/"
+           elementFormDefault="qualified">
+    <!-- schema containing object common to all talos WS like error definition-->
+    <xs:element name="HEADER">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="DATA_CONTRACT_NAME" minOccurs="1" maxOccurs="1">
+                    <xs:simpleType>
+                        <xs:restriction base="xs:string">
+                            <xs:enumeration value="WAG">
+                                <xs:annotation>
+                                    <xs:documentation>Wholesale_Access_Gateway</xs:documentation>
+                                </xs:annotation>
+                            </xs:enumeration>
+                        </xs:restriction>
+                    </xs:simpleType>
+                </xs:element>
+                <xs:element name="ORIGINATOR_CODE" minOccurs="1" maxOccurs="1">
+                    <xs:simpleType>
+                        <xs:restriction base="xs:string">
+                            <xs:enumeration value="EXT"/>
+                        </xs:restriction>
+                    </xs:simpleType>
+                </xs:element>
+                <xs:element name="TRANSACTION_ID" minOccurs="1" maxOccurs="1">
+                    <xs:simpleType>
+                        <xs:restriction base="xs:integer">
+                            <xs:totalDigits value="20"/>
+                        </xs:restriction>
+                    </xs:simpleType>
+                </xs:element>
+                <xs:element name="DATE_TIME_STAMP" minOccurs="1" maxOccurs="1">
+                    <xs:simpleType>
+                        <xs:restriction base="xs:string">
+                            <xs:minLength value="19"/>
+                            <xs:maxLength value="19"/>
+                        </xs:restriction>
+                    </xs:simpleType>
+                </xs:element>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="ORDER_NUMBER">
+    <xs:simpleType>
+        <xs:restriction base="xs:string">
+            <xs:minLength value="1"/>
+            <xs:maxLength value="32"/>
+        </xs:restriction>
+    </xs:simpleType>
+    </xs:element>
+</xs:schema>

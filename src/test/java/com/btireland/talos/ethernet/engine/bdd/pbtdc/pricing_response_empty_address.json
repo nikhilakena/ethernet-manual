@@ -1,0 +1,52 @@
+{
+  "oao": null,
+  "order_number": "BT-QBTDC-1",
+  "project_key": "xyz",
+  "quote_item": [
+    {
+      "a_end": {
+        "access": {
+          "access_supplier" : "ON-NET",
+          "action_flag": "P",
+          "bandwidth": "10",
+          "sla": "ENHANCED",
+          "target_access_supplier": "ON-NET"
+        },
+        "location": {
+          "eircode": "A00F027",
+          "network_status": "ON-NET",
+          "address" : null,
+          "multi_eircode" : null,
+          "textual_address": {}
+        }
+      },
+      "b_end": {
+        "access": {
+          "action_flag": "CH"
+        },
+        "location": {
+          "handover_node": "EQUINIX_DB1"
+        }
+      },
+      "etherflow_recurring_price": "1050",
+      "etherway_recurring_price": "1000",
+      "ip": {},
+      "logical": {
+        "action_flag": "P",
+        "bandwidth": "100",
+        "profile": "PRIMARY"
+      },
+      "non_recurring_price": "1000",
+      "oao": null,
+      "product": "WEC",
+      "connection_type": "ETHERWAY_STANDARD",
+      "quote_item_id": 1,
+      "recurring_frequency": "MONTHLY",
+      "recurring_price": "300",
+      "status": "Quoted",
+      "term": "1"
+    }
+  ],
+  "recurring_frequency": "MONTHLY",
+  "status": "Success"
+}

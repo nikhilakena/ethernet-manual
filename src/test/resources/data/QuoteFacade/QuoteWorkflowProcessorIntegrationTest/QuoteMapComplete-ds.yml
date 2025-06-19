@@ -1,0 +1,23 @@
+qbtdc_order_map:
+  - quote_group_id: 1
+    operator_code: 83758
+    operator_name: SKY
+    sync_flag: 0
+    status: COMPLETE
+    supplier: sky
+    order_number: BT-QBTDC-1234
+
+qbtdc_item_map:
+  - quote_group_id: 1
+    quote_id: 1
+    wag_quote_id: 1
+    offline_quoted: 0
+
+
+quote_email:
+  - id: 1
+    quote_group_id: 1
+    email: test1@bt.com
+  - id: 2
+    quote_group_id: 1
+    email: test2@bt.com

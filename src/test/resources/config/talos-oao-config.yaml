@@ -1,0 +1,12 @@
+application:
+  oao-details:
+    acme:
+      name: "Acme"
+      enable_kci_tc_banner: false
+    smith:
+      name: "Smith, Inc"
+      enable_kci_tc_banner: true
+    ntt:
+      name: "ntt"
+      handovers:
+        - INTERXION_DUB1
