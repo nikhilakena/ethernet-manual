@@ -40,6 +40,8 @@ public class Quote {
 
     private String aendSla;
 
+    private String aendCeSwitch;
+
     private String bendHandOverNode;
 
     private String bendActionFlag;
@@ -66,6 +68,7 @@ public class Quote {
         private String aendReqAccessSupplier;
         private String aendBandwidth;
         private String aendSla;
+        private String aendCeSwitch;
         private String bendHandOverNode;
         private String bendActionFlag;
 
@@ -166,6 +169,11 @@ public class Quote {
             return this;
         }
 
+        public QuoteBuilder aendCeSwitch(String aendCeSwitch) {
+            this.aendCeSwitch = aendCeSwitch;
+            return this;
+        }
+
         public QuoteBuilder bendHandOverNode(String bendHandOverNode) {
             this.bendHandOverNode = bendHandOverNode;
             return this;
@@ -198,6 +206,7 @@ public class Quote {
             quote.logicalBandwidth = this.logicalBandwidth;
             quote.bendHandOverNode = this.bendHandOverNode;
             quote.aendBandwidth = this.aendBandwidth;
+            quote.aendCeSwitch=this.aendCeSwitch;
             return quote;
         }
     }
