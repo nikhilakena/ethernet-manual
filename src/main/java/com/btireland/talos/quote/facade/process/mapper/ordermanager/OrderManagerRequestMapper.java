@@ -1,6 +1,7 @@
 package com.btireland.talos.quote.facade.process.mapper.ordermanager;
 
 import static com.btireland.talos.quote.facade.base.constant.WagConstants.TALOS_IN_SYSTEM;
+
 import com.btireland.talos.core.common.rest.exception.checked.TalosNotFoundException;
 import com.btireland.talos.ethernet.engine.dto.OrdersDTO;
 import com.btireland.talos.ethernet.engine.util.DateUtils;
@@ -22,6 +23,7 @@ import com.btireland.talos.quote.facade.exception.BadQuoteResponseException;
 import com.btireland.talos.quote.facade.process.helper.QuoteHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,14 +39,18 @@ public class OrderManagerRequestMapper {
      * Map Quote Manager Response and incoming qbtdc request to Order Manager request.
      *
      * @param createQuoteResponse the create quote response {@link CreateQuoteResponse}
-     * @param quoteOrderMap   the qbtdc order map {@link QuoteOrderMapEntity}
+     * @param quoteOrderMap       the qbtdc order map {@link QuoteOrderMapEntity}
      * @return the qbtdc order dto for order manager
      */
     public static QuoteOrder createOrderManagerRequest(CreateQuoteResponse createQuoteResponse,
                                                        QuoteOrderMapEntity quoteOrderMap) throws TalosNotFoundException {
-        return new QuoteOrder(buildOrders(createQuoteResponse, quoteOrderMap),
-                              buildQbtdcs(createQuoteResponse,quoteOrderMap),
-                              buildQuoteItemRequest(createQuoteResponse));
+
+
+        QuoteOrder quoteOrder = new QuoteOrder(buildOrders(createQuoteResponse, quoteOrderMap),
+                buildQbtdcs(createQuoteResponse, quoteOrderMap),
+                buildQuoteItemRequest(createQuoteResponse));
+        LOGGER.error("quote order.... {}", quoteOrder);
+        return quoteOrder;
     }
 
     /**
@@ -59,15 +65,15 @@ public class OrderManagerRequestMapper {
         if (createQuoteResponse.getQuotes() != null) {
             for (QuoteResponse quoteResponse : createQuoteResponse.getQuotes()) {
                 QuoteItemResponse logical = QuoteHelper.fetchQuoteItemResponse(quoteResponse,
-                                                                               QuoteItemNameType.LOGICAL);
+                        QuoteItemNameType.LOGICAL);
                 QuoteProductConfigResponse logicalQuoteProductConfig =
                         logical.getQuoteProduct().getQuoteProductConfig();
                 QuoteItemResponse aEnd = QuoteHelper.fetchQuoteItemResponse(quoteResponse,
-                                                                            QuoteItemNameType.A_END);
+                        QuoteItemNameType.A_END);
                 QuoteProductConfigResponse aEndquoteProductConfig = aEnd.getQuoteProduct().getQuoteProductConfig();
 
                 QuoteItemResponse bEnd = QuoteHelper.fetchQuoteItemResponse(quoteResponse,
-                                                                            QuoteItemNameType.B_END);
+                        QuoteItemNameType.B_END);
                 String product = createQuoteResponse.getServiceClass().name();
 
                 Quote quote = Quote.QuoteBuilder.quoteBuilder()
@@ -77,17 +83,19 @@ public class OrderManagerRequestMapper {
                                 createQuoteResponse.getConnectionType().name() : null)
                         .term(logical.getQuoteItemTerm())
                         .ipRange(logicalQuoteProductConfig.getIpRange() != null ?
-                                         logicalQuoteProductConfig.getIpRange().intValue() : null)
+                                logicalQuoteProductConfig.getIpRange().intValue() : null)
                         .logicalActionFlag(logicalQuoteProductConfig.getAction().getValue())
                         .logicalBandwidth(QuoteHelper.formatBandwidth(logicalQuoteProductConfig.getBandwidth()))
                         .logicalProfile(logicalQuoteProductConfig.getProfile().name())
                         .aendEircode(aEnd.getQuoteProduct().getQuoteProductPlace().getEircode())
                         .aendActionFlag(aEndquoteProductConfig.getAction().getValue())
                         .aendReqAccessSupplier(aEndquoteProductConfig.getAccessSupplier() != null ?
-                                                       aEndquoteProductConfig.getAccessSupplier().getValue() : null)
+                                aEndquoteProductConfig.getAccessSupplier().getValue() : null)
                         .aendBandwidth(QuoteHelper.formatBandwidth(aEndquoteProductConfig.getBandwidth()))
                         .aendSla(aEndquoteProductConfig.getSla() != null ? aEndquoteProductConfig.getSla().name() :
-                                         null)
+                                null)
+                        .aendCeSwitch(aEndquoteProductConfig.getCeSwitch() != null ?
+                                aEndquoteProductConfig.getCeSwitch() : null)
                         .bendHandOverNode(bEnd.getQuoteProduct().getQuoteProductPlace().getHandoverNode())
                         .bendActionFlag(bEnd.getQuoteProduct().getQuoteProductConfig().getAction().getValue())
                         .build();
@@ -106,12 +114,12 @@ public class OrderManagerRequestMapper {
      * @param quoteOrderMapEntity the quote order map {@link QuoteOrderMapEntity}
      * @return the qbtdcs dto
      */
-    private static Qbtdcs buildQbtdcs(CreateQuoteResponse createQuoteResponse,QuoteOrderMapEntity quoteOrderMapEntity) {
+    private static Qbtdcs buildQbtdcs(CreateQuoteResponse createQuoteResponse, QuoteOrderMapEntity quoteOrderMapEntity) {
         String mode = Boolean.TRUE.equals(quoteOrderMapEntity.getSyncFlag()) ? QuoteMode.SYNC.getValue() :
                 QuoteMode.ASYNC.getValue();
-        return new Qbtdcs(mode,DateUtils.btDateTimeToStringWithPattern(createQuoteResponse.getQuoteDate(),
-                                                                       WagConstants.DD_MM_YYYY),
-                          QuoteHelper.fetchRecurringFrequency(createQuoteResponse.getQuotes().get(0)));
+        return new Qbtdcs(mode, DateUtils.btDateTimeToStringWithPattern(createQuoteResponse.getQuoteDate(),
+                WagConstants.DD_MM_YYYY),
+                QuoteHelper.fetchRecurringFrequency(createQuoteResponse.getQuotes().get(0)));
 
     }
 
@@ -119,12 +127,12 @@ public class OrderManagerRequestMapper {
      * Build orders dto for Order Manager request
      *
      * @param createQuoteResponse the response from quote manager {@link CreateQuoteResponse}
-     * @param quoteOrderMap the quote order map {@link QuoteOrderMapEntity}
+     * @param quoteOrderMap       the quote order map {@link QuoteOrderMapEntity}
      * @return the orders dto
      */
     private static Order buildOrders(CreateQuoteResponse createQuoteResponse, QuoteOrderMapEntity quoteOrderMap) throws TalosNotFoundException {
         String oao = QuoteHelper.fetchOao(createQuoteResponse.getQuotes().get(0).getRelatedParties());
-        String obo =  QuoteHelper.fetchObo(createQuoteResponse.getQuotes().get(0).getRelatedParties());
+        String obo = QuoteHelper.fetchObo(createQuoteResponse.getQuotes().get(0).getRelatedParties());
         return Order.OrderBuilder.orderBuilder()
                 .oao(obo != null ? obo : oao)
                 .obo(obo)
@@ -151,13 +159,13 @@ public class OrderManagerRequestMapper {
     private static String fetchOrderStatus(NotificationType notificationType) {
         if (notificationType == NotificationType.COMPLETE) {
             return WagConstants.TALOS_COMPLETE;
-        }else if(notificationType == NotificationType.REJECT){
+        } else if (notificationType == NotificationType.REJECT) {
             return WagConstants.TALOS_REJECT;
         }
         return null;
     }
 
-    public static OrdersDTO createStatusUpdateRequest(QuoteOrderMapEntity quoteOrderMap){
+    public static OrdersDTO createStatusUpdateRequest(QuoteOrderMapEntity quoteOrderMap) {
         OrdersDTO ordersDTO = new com.btireland.talos.ethernet.engine.dto.OrdersDTO();
         ordersDTO.setOrderNumber(quoteOrderMap.getOrderNumber());
         ordersDTO.setOao(quoteOrderMap.getSupplier());
