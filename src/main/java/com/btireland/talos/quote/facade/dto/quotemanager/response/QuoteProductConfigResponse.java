@@ -17,6 +17,7 @@ public class QuoteProductConfigResponse {
     private NetworkType targetAccessSupplier;
     private SlaType sla;
     private NetworkType networkStatus;
+    private String ceSwitch;
 
     private QuoteProductConfigResponse() {
     }//For Json Deserialization
@@ -24,7 +25,7 @@ public class QuoteProductConfigResponse {
     public QuoteProductConfigResponse(@Nullable Float bandwidth, @Nullable Long ipRange, @Nullable ProfileType profile,
                                       @Nullable ActionType action,
                                       @Nullable NetworkType accessSupplier, @Nullable NetworkType targetAccessSupplier,
-                                      @Nullable SlaType sla, @Nullable NetworkType networkStatus) {
+                                      @Nullable SlaType sla, @Nullable NetworkType networkStatus, @Nullable String ceSwitch) {
         this.bandwidth = bandwidth;
         this.ipRange = ipRange;
         this.profile = profile;
@@ -33,6 +34,8 @@ public class QuoteProductConfigResponse {
         this.targetAccessSupplier = targetAccessSupplier;
         this.sla = sla;
         this.networkStatus = networkStatus;
+        this.ceSwitch = ceSwitch; // Initialize CE Switch
+
     }
 
     @Nullable
@@ -75,6 +78,16 @@ public class QuoteProductConfigResponse {
         return networkStatus;
     }
 
+    @Nullable
+    public String getCeSwitch() { // Getter for CE Switch
+        return ceSwitch;
+    }
+
+    public void setCeSwitch(@Nullable String ceSwitch) { // Setter for CE Switch
+        this.ceSwitch = ceSwitch;
+    }
+
+
     @Override
     public String toString() {
         return "QuoteProductConfigResponse{" +
@@ -85,6 +98,7 @@ public class QuoteProductConfigResponse {
                 ", accessSupplier='" + accessSupplier + '\'' +
                 ", sla='" + sla + '\'' +
                 ", networkStatus ='" + '\'' +
+                ", ceSwitch='" + ceSwitch + '\'' + // Include CE Switch in toString
                 '}';
     }
 }

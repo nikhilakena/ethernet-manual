@@ -1,6 +1,7 @@
 package com.btireland.talos.quote.facade.dto.ordermanager;
 
-public class Quote {
+public class Quote
+{
 
     private Long id;
 
@@ -275,6 +276,9 @@ public class Quote {
         return aendReqAccessSupplier;
     }
 
+    public String getAendCeSwitch() {
+        return aendCeSwitch;
+    }
     public String getAendBandwidth() {
         return aendBandwidth;
     }
@@ -318,6 +322,7 @@ public class Quote {
                 ", aendSla='" + aendSla + '\'' +
                 ", bendHandOverNode='" + bendHandOverNode + '\'' +
                 ", bendActionFlag='" + bendActionFlag + '\'' +
+                ", aendCeSwitch='" + aendCeSwitch + '\'' +
                 '}';
     }
 }

@@ -21,10 +21,7 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.cloud.openfeign.SpringQueryMap;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.*;
 
 @FeignClient(name = "quotemanager", url = "${application.talos.quotemanager.url}", configuration =
         {QuoteManagerFeignConfiguration.class})
@@ -32,7 +29,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 public interface QuoteManagerClient {
 
     @PostMapping(value = RestMapping.CREATE_QUOTE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    CreateQuoteResponse createQuote(@Valid CreateQuoteRequest createQuoteRequest) throws TalosBadRequestException,
+    CreateQuoteResponse createQuote(@Valid @RequestBody CreateQuoteRequest createQuoteRequest) throws TalosBadRequestException,
             TalosNotFoundException;
 
     @GetMapping(value = RestMapping.QUOTE_MANAGER_EMAIL_PATH, consumes = MediaType.APPLICATION_JSON_VALUE)

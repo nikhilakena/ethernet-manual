@@ -14,6 +14,7 @@ public class QuoteProductConfigRequest {
     private ActionType action;
     private NetworkType accessSupplier;
     private SlaType sla;
+    private String ceSwitch;
 
     private QuoteProductConfigRequest() {
     }//For Json Serialization
@@ -24,6 +25,19 @@ public class QuoteProductConfigRequest {
         this.profile = profile;
         this.action = action;
         this.ipRange = ipRange;
+    }
+
+    public QuoteProductConfigRequest(@Nullable Float bandwidth, @Nullable ProfileType profile,
+                                     @Nullable ActionType action, @Nullable Long ipRange,
+                                     @Nullable NetworkType accessSupplier, @Nullable SlaType sla,
+                                     @Nullable String ceSwitch) {
+        this.bandwidth = bandwidth;
+        this.profile = profile;
+        this.action = action;
+        this.ipRange = ipRange;
+        this.accessSupplier = accessSupplier;
+        this.sla = sla;
+        this.ceSwitch = ceSwitch; // Initialize ceSwitch
     }
 
     public QuoteProductConfigRequest(@Nullable Float bandwidth,
@@ -69,6 +83,15 @@ public class QuoteProductConfigRequest {
         return sla;
     }
 
+    @Nullable
+    public String getCeSwitch() { // Getter for CE Switch
+        return ceSwitch;
+    }
+
+    public void setCeSwitch(@Nullable String ceSwitch) { // Setter for CE Switch
+        this.ceSwitch = ceSwitch;
+    }
+
     @Override
     public String toString() {
         return "QuoteProductConfigRequest{" +
@@ -78,6 +101,7 @@ public class QuoteProductConfigRequest {
                 ", action='" + action + '\'' +
                 ", accessSupplier='" + accessSupplier + '\'' +
                 ", sla='" + sla + '\'' +
+                ", ceSwitch='" + ceSwitch + '\'' +
                 '}';
     }
 }
